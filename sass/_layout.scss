@@ -1,0 +1,32 @@
+.nav-bar {
+  background-color: blue;
+  height: 5rem;
+  width: 100%;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+.utility-bar {
+  background-color: green;
+  height: 5rem;
+  width: 100%;
+
+  position: fixed;
+  top: 5rem;
+  left: 0;
+}
+
+.task-board {
+  display: grid;
+  grid-template-rows: 1fr;
+  grid-template-columns: repeat(6, 30rem);
+  gap: 2rem;
+  margin-top: 10rem;
+  padding: 2rem;
+  min-width: 100vw;
+  overflow: scroll;
+  background-color: cadetblue;
+  min-height: calc(100vh - 11.5rem);
+}
