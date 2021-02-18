@@ -18,7 +18,7 @@
 
     <link rel="preconnect" href="https://fonts.gstatic.com" />
     <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap"
       rel="stylesheet"
     />
 
@@ -30,22 +30,22 @@
     <div class="utility-bar">Utility Bar</div>
     <main class="task-board">
       <div class="task-list">
-          <div class="task-list__topbar">
-              <h2 class="task-list__topbar__heading">Sgaia Foods</h2>
-              <button class="task-list__topbar__btn">EDIT</button>
-          </div>
-        <div class="task">
-          <div class="task__topbar">
-              <div class="task__topbar__color-swatch">===</div>
-              <button class="task__topbar__btn">EDIT</button>
-          </div>
-          <div class="task__content">
-            <span class="task-text">This is task text. This is task text. This is task text. This is task text. This is task text. This is task text. </span>
-          </div>
-          <div class="task__owner">
-            <img src="#" alt="#" class="task__owner-img" />
-          </div>
+        <div class="task-list__topbar">
+          <h2 class="task-list__topbar__heading">Sgaia Foods</h2>
+          <button class="task-list__topbar__btn">EDIT</button>
         </div>
+        <div class="new-task">
+          <span class="new-task__text">Add a new task</span>
+          <textarea
+            class="new-task__text-area hidden"
+            name="TaskTextInput"
+            id="TaskTextInput-1"
+          ></textarea>
+        </div>
+      </div>
+      <div class="new-task-list">
+        <span class="task-text">Add a new task list</span>
+      </div>
     </main>
   </body>
 </html>

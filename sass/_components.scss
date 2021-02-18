@@ -1,14 +1,17 @@
 .task-list {
-  background-color: gray;
-  padding: 1rem;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+
+  padding: 1rem;
+
+  background-color: gray;
 
   &__topbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
+
     font-size: 1.25rem;
 
     &__heading {
@@ -19,18 +22,37 @@
   }
 }
 
+.new-task-list {
+  display: flex;
+  align-items: center;
+
+  height: 5rem;
+  border-radius: 3px;
+  padding: 1rem;
+
+  font-size: 2rem;
+
+  background-color: red;
+}
+
 .task {
   position: relative;
-  background-color: hotpink;
+
   margin-top: 1rem;
-  font-size: 2rem;
   padding-bottom: 3rem;
+  border-radius: 3px;
+
+  font-size: 2rem;
+
+  background-color: hotpink;
 
   &__topbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
+
     height: 2.5rem;
+
     background-color: indianred;
 
     &__btn {
@@ -49,5 +71,35 @@
     position: absolute;
     bottom: 0;
     right: 0;
+  }
+}
+
+.new-task {
+  display: flex;
+  align-items: center;
+
+  min-height: 5rem;
+  border-radius: 3px;
+  margin-top: 1rem;
+  padding: 1rem;
+
+  font-size: 2rem;
+
+  background-color: red;
+
+  &__text {
+    pointer-events: none;
+  }
+
+  &__text-area {
+    width: 100%;
+    border: 3px solid #cccccc;
+    padding: 5px;
+
+    background-color: transparent;
+    overflow: hidden;
+    resize: vertical;
+    outline: none;
+    border: none;
   }
 }

@@ -12,7 +12,13 @@
 // CSS Variables
 
 :root {
-  --default-font-style: "Roboto", sans-serif;
+  // Fonts
+  --default-font-style: "Cairo", sans-serif;
+
+  // Colours
+  --default-font-color: #0a0a0a;
+
+  // Sizes
 }
 
 // Reset
@@ -31,6 +37,9 @@ html {
 
 body {
   box-sizing: border-box;
+  font-family: "Cairo", sans-serif;
+  line-height: 1;
+  color: var(--default-font-color);
 }
 
 button {

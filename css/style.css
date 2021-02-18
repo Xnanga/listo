@@ -1,5 +1,6 @@
 :root {
-  --default-font-style: "Roboto", sans-serif; }
+  --default-font-style: "Cairo", sans-serif;
+  --default-font-color: #0a0a0a; }
 
 *,
 *::after,
@@ -12,7 +13,10 @@ html {
   font-size: 62.5%; }
 
 body {
-  box-sizing: border-box; }
+  box-sizing: border-box;
+  font-family: "Cairo", sans-serif;
+  line-height: 1;
+  color: var(--default-font-color); }
 
 button {
   padding: 0;
@@ -36,23 +40,33 @@ a {
   text-decoration: none; }
 
 .task-list {
-  background-color: gray;
-  padding: 1rem;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start; }
+  justify-content: flex-start;
+  padding: 1rem;
+  background-color: gray; }
   .task-list__topbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     font-size: 1.25rem; }
 
+.new-task-list {
+  display: flex;
+  align-items: center;
+  height: 5rem;
+  border-radius: 3px;
+  padding: 1rem;
+  font-size: 2rem;
+  background-color: red; }
+
 .task {
   position: relative;
-  background-color: hotpink;
   margin-top: 1rem;
+  padding-bottom: 3rem;
+  border-radius: 3px;
   font-size: 2rem;
-  padding-bottom: 3rem; }
+  background-color: hotpink; }
   .task__topbar {
     display: flex;
     justify-content: space-between;
@@ -68,30 +82,60 @@ a {
     bottom: 0;
     right: 0; }
 
+.new-task {
+  display: flex;
+  align-items: center;
+  min-height: 5rem;
+  border-radius: 3px;
+  margin-top: 1rem;
+  padding: 1rem;
+  font-size: 2rem;
+  background-color: red; }
+  .new-task__text {
+    pointer-events: none; }
+  .new-task__text-area {
+    width: 100%;
+    border: 3px solid #cccccc;
+    padding: 5px;
+    background-color: transparent;
+    overflow: hidden;
+    resize: vertical;
+    outline: none;
+    border: none; }
+
 .nav-bar {
-  background-color: blue;
-  height: 5rem;
-  width: 100%;
   position: fixed;
   top: 0;
-  left: 0; }
-
-.utility-bar {
-  background-color: green;
+  left: 0;
   height: 5rem;
   width: 100%;
+  background-color: blue; }
+
+.utility-bar {
   position: fixed;
   top: 5rem;
-  left: 0; }
+  left: 0;
+  height: 5rem;
+  width: 100%;
+  background-color: green; }
 
 .task-board {
   display: grid;
   grid-template-rows: 1fr;
   grid-template-columns: repeat(6, 30rem);
+  grid-auto-columns: 30rem;
+  grid-auto-rows: 0;
+  grid-auto-flow: column;
   gap: 2rem;
+  min-height: calc(100vh - 11.5rem);
+  min-width: 100vw;
   margin-top: 10rem;
   padding: 2rem;
-  min-width: 100vw;
-  overflow: scroll;
-  background-color: cadetblue;
-  min-height: calc(100vh - 11.5rem); }
+  margin-right: 5rem;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  background-color: cadetblue; }
+
+.hidden {
+  display: none;
+  visibility: hidden; }
