@@ -3,9 +3,10 @@
   flex-direction: column;
   justify-content: flex-start;
 
-  padding: 1rem;
+  padding: 1.5rem;
+  border-radius: 3px;
 
-  background-color: gray;
+  background-color: var(--color-light-grey);
 
   &__topbar {
     display: flex;
@@ -32,7 +33,15 @@
 
   font-size: 2rem;
 
-  background-color: red;
+  background-color: rgba(193, 200, 228, 0.7);
+
+  &:hover {
+    background-color: rgba(193, 200, 228, 0.9);
+  }
+
+  & > span {
+    pointer-events: none;
+  }
 }
 
 .task {
@@ -44,7 +53,7 @@
 
   font-size: 2rem;
 
-  background-color: hotpink;
+  background-color: #ffffff;
 
   &__topbar {
     display: flex;
@@ -85,20 +94,31 @@
 
   font-size: 2rem;
 
-  background-color: red;
+  background-color: #ffffff;
+  box-shadow: 3px 3px 3px -2px rgba(87, 87, 87, 1);
+
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+
+  &:hover {
+    box-shadow: 4px 4px 3px -2px rgba(87, 87, 87, 1);
+  }
 
   &__text {
+    width: 100%;
     pointer-events: none;
   }
 
   &__text-area {
     width: 100%;
+    min-height: 100%;
+    height: auto;
     border: 3px solid #cccccc;
     padding: 5px;
 
     background-color: transparent;
     overflow: hidden;
-    resize: vertical;
+    resize: none;
     outline: none;
     border: none;
   }
