@@ -29,13 +29,12 @@
   grid-auto-flow: column;
   gap: 2rem;
 
-  // min-height: calc(100vh - 11.5rem);
-  min-height: calc(100vh);
+  min-height: 100vh;
   min-width: 100%;
 
   padding-top: 12rem;
   padding-left: 2rem;
-  padding-right: 2rem;
+  padding-bottom: 2rem;
 
   overflow-x: scroll;
   overflow-y: hidden;

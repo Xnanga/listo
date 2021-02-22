@@ -100,12 +100,14 @@ a {
   margin-top: 1rem;
   padding: 1rem;
   font-size: 2rem;
-  background-color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.65);
   box-shadow: 3px 3px 3px -2px #575757;
   overflow-wrap: break-word;
-  white-space: pre-wrap; }
+  white-space: pre-wrap;
+  transition: all 0.2s; }
   .new-task:hover {
-    box-shadow: 4px 4px 3px -2px #575757; }
+    box-shadow: 4px 4px 3px -2px #575757;
+    background-color: rgba(255, 255, 255, 0.85); }
   .new-task__text {
     width: 100%;
     pointer-events: none; }
@@ -120,6 +122,10 @@ a {
     resize: none;
     outline: none;
     border: none; }
+  .new-task--populated {
+    background-color: #ffffff; }
+    .new-task--populated:hover {
+      background-color: #ffffff; }
 
 .nav-bar {
   position: fixed;
@@ -145,11 +151,11 @@ a {
   grid-auto-rows: 0;
   grid-auto-flow: column;
   gap: 2rem;
-  min-height: calc(100vh);
+  min-height: 100vh;
   min-width: 100%;
   padding-top: 12rem;
   padding-left: 2rem;
-  padding-right: 2rem;
+  padding-bottom: 2rem;
   overflow-x: scroll;
   overflow-y: hidden;
   background: #84ceeb;
