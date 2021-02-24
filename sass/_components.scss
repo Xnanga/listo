@@ -16,10 +16,35 @@
     font-size: 1.25rem;
 
     &__heading {
+      width: 90%;
+      padding: 1rem;
+
+      overflow-wrap: break-word;
+      white-space: pre-wrap;
+
+      transition: all 0.2s;
     }
 
     &__btn {
     }
+  }
+
+  &__text-area {
+    width: 90%;
+
+    font-size: 2rem;
+    font-weight: 700;
+
+    padding: 1rem;
+
+    background-color: darken(#c1c8e4, 5%);
+
+    overflow: hidden;
+    resize: none;
+    outline: none;
+    border: none;
+
+    transition: all 0.2s;
   }
 }
 

@@ -56,6 +56,23 @@ a {
     justify-content: space-between;
     align-items: center;
     font-size: 1.25rem; }
+    .task-list__topbar__heading {
+      width: 90%;
+      padding: 1rem;
+      overflow-wrap: break-word;
+      white-space: pre-wrap;
+      transition: all 0.2s; }
+  .task-list__text-area {
+    width: 90%;
+    font-size: 2rem;
+    font-weight: 700;
+    padding: 1rem;
+    background-color: #afb8dc;
+    overflow: hidden;
+    resize: none;
+    outline: none;
+    border: none;
+    transition: all 0.2s; }
 
 .new-task-list {
   display: flex;
@@ -160,6 +177,9 @@ a {
   overflow-y: hidden;
   background: #84ceeb;
   background: linear-gradient(45deg, rgba(132, 206, 235, 0.85) 0%, rgba(90, 185, 234, 0.85) 50%, rgba(86, 128, 233, 0.85) 100%); }
+
+h2 {
+  font-size: 2rem; }
 
 .hidden {
   display: none;

@@ -9,10 +9,9 @@ const taskBoard = document.querySelector(".task-board");
 const newTaskListBtn = document.querySelector(".new-task-list");
 
 // Classes
-
 class Task {
   id = (Date.now() + "").slice(-10);
-  node;
+  parentTaskList;
 
   constructor(textContent, id) {
     this.textContent = textContent;
@@ -21,11 +20,11 @@ class Task {
 
 class TaskList {
   id = (Date.now() + "").slice(-10);
-  node;
+  childTasks = [];
 
   constructor(textContent) {
     const task = new Task();
-    this.textContent = textContent;
+    this.textContent = "New Task List";
   }
 }
 
@@ -44,11 +43,30 @@ class UI {
     }
   }
 
-  _displayNewTaskList() {
+  _toggleTaskListTextInput(taskList) {
+    const newTaskListText = taskList.querySelector(
+      ".task-list__topbar__heading"
+    );
+    const newTaskListTextInput = taskList.querySelector(
+      ".task-list__text-area"
+    );
+
+    newTaskListText.classList.toggle("hidden");
+    newTaskListTextInput.classList.toggle("hidden");
+
+    if (!newTaskListTextInput.classList.contains("hidden")) {
+      newTaskListTextInput.focus();
+    }
+  }
+
+  _displayNewTaskList(taskList) {
     const html = `
-    <div class="task-list">
+    <div data-edited="false" data-id="${taskList.id}" class="task-list">
     <div class="task-list__topbar">
-      <h2 class="task-list__topbar__heading">New Task List</h2>
+      <h2 class="task-list__topbar__heading">${
+        taskList.textContent || "New Task List"
+      }</h2>
+      <div class="task-list__text-area hidden" contenteditable="true"></div>
       <button class="task-list__topbar__btn">EDIT</button>
     </div>
     </div>
@@ -75,8 +93,25 @@ class UI {
   }
 
   _populateTextContent(task) {
-    task.node.querySelector(".new-task__text").textContent = task.textContent;
-    task.node.querySelector(".new-task__text-area").value = task.textContent;
+    const taskHTML = taskBoard.querySelector(`.new-task[data-id="${task.id}"]`);
+
+    taskHTML.querySelector(".new-task__text").textContent = task.textContent;
+    taskHTML.querySelector(".new-task__text-area").value = task.textContent;
+  }
+
+  _populateTaskListContent(taskList) {
+    const taskListHTML = taskBoard.querySelector(
+      `.task-list[data-id="${taskList.id}"]`
+    );
+
+    if (!taskList.textContent) {
+      taskList.textContent = "New Task List";
+    }
+
+    taskListHTML.querySelector(".task-list__topbar__heading").textContent =
+      taskList.textContent;
+    taskListHTML.querySelector(".task-list__text-area").value =
+      taskList.textContent;
   }
 
   _horizontalScroll() {
@@ -95,6 +130,10 @@ class App {
   taskIsBeingEdited = false;
   taskIsFinishedEditing = true;
 
+  taskListEditingEnabled = true;
+  taskListIsBeingEdited = false;
+  taskListIsFinishedEditing = true;
+
   activeTaskObj;
   activeTaskHTML;
 
@@ -110,25 +149,32 @@ class App {
     this.allTaskLists.push(newTaskList);
     const newestTaskList = ui._displayNewTaskList(newTaskList);
 
-    this.activeTaskListObj = newTaskList;
-    this.activeTaskListHTML = newestTaskList;
+    this._setActiveTaskList(newTaskList);
 
     this.newTaskFromList(this.activeTaskListHTML);
 
     ui._horizontalScroll();
+
+    this._setLocalStorage();
   }
 
   newTaskFromList(currentTaskList) {
     const newTask = new Task();
+    const parentTaskListObj = this._getNodeObj(currentTaskList);
+    newTask.parentTaskList = parentTaskListObj.id;
     this.allTasks.push(newTask);
     const newestTask = ui._displayNewTask(currentTaskList);
 
     this.activeTaskObj = newTask;
     this.activeTaskHTML = newestTask;
+
+    this._setLocalStorage();
   }
 
   newTask(e) {
     const target = e.target;
+    const parentTaskList = target.closest(".task-list");
+    const parentTaskListObj = this._getNodeObj(parentTaskList);
 
     if (target.className !== "new-task") return;
     if (target.dataset.edited === "true") {
@@ -138,6 +184,7 @@ class App {
     this._toggleTaskEditing();
 
     const newTask = new Task();
+    newTask.parentTaskList = parentTaskListObj.id;
     this.allTasks.push(newTask);
     this.activeTaskObj = newTask;
     this.activeTaskHTML = e.target;
@@ -146,8 +193,45 @@ class App {
     this._manageTaskEdited(target);
 
     ui._toggleTaskTextInput(target);
-
     ui._displayNewTask(target);
+
+    this._updateChildTaskList(parentTaskListObj);
+
+    this._setLocalStorage();
+  }
+
+  _setActiveTask() {
+    // Some Code
+  }
+
+  _setActiveTaskList(data) {
+    let taskListObject;
+    let taskListHTML;
+
+    if (data.id) {
+      taskListObject = data;
+      taskListHTML = taskBoard.querySelector(
+        `.task-list[data-id="${taskListObject.id}"]`
+      );
+
+      this.activeTaskListObj = taskListObject;
+      this.activeTaskListHTML = taskListHTML;
+
+      return taskListHTML;
+    }
+
+    if (!data.id) {
+      taskListHTML = data.closest(".task-list");
+
+      taskListObject = this.allTaskLists.find(
+        (taskList) => taskList.id === taskListHTML.dataset.id
+      );
+
+      this.activeTaskListObj = taskListObject;
+      this.activeTaskListHTML = taskListHTML;
+
+      return taskListObject;
+    }
   }
 
   editTaskTextContent(task) {
@@ -155,6 +239,20 @@ class App {
       (storedTask) => storedTask.id === task.dataset.id
     );
     this._processTaskTextInput();
+
+    this._setLocalStorage();
+  }
+
+  _updateChildTaskList(taskList) {
+    const taskListHTML = taskBoard.querySelector(
+      `.task-list[data-id="${taskList.id}"]`
+    );
+    const allChildTasks = taskListHTML.querySelectorAll(".new-task");
+    const allChildTasksIds = [];
+
+    allChildTasks.forEach((task) => allChildTasksIds.push(task.dataset.id));
+
+    taskList.childTasks = allChildTasksIds;
   }
 
   _attachEventListeners() {
@@ -171,6 +269,14 @@ class App {
       if (this.taskIsBeingEdited) {
         this._handleTaskEdit();
       }
+      if (this.taskListIsBeingEdited) {
+        this._handleTaskListEdit(e.target);
+      }
+    }
+
+    if (e.target.classList.contains("task-list__topbar__heading")) {
+      this._setActiveTaskList(e.target);
+      this._handleTaskListEdit(e.target);
     }
 
     if (!this.taskEditingEnabled) return;
@@ -184,6 +290,10 @@ class App {
       this._handleTaskEdit();
     }
 
+    if (this.taskListIsBeingEdited) {
+      this._handleTaskListEdit();
+    }
+
     if (!this.taskEditingEnabled) return;
     this._handleNewTaskCreation(e);
   }
@@ -195,16 +305,48 @@ class App {
     if (!taskText) return this._undoTaskCreation(this.activeTaskHTML);
 
     this.activeTaskObj.textContent = taskText;
-    this.activeTaskObj.node = this.activeTaskHTML;
 
     ui._toggleTaskTextInput(this.activeTaskHTML);
     ui._populateTextContent(this.activeTaskObj);
+  }
+
+  _processTaskListTextInput(target) {
+    const taskListText = this.activeTaskListHTML.querySelector(
+      ".task-list__text-area"
+    ).textContent;
+
+    this.activeTaskListObj.textContent = taskListText;
+
+    ui._toggleTaskListTextInput(this.activeTaskListHTML);
+    ui._populateTaskListContent(this.activeTaskListObj);
   }
 
   _toggleTaskEditing() {
     this.taskEditingEnabled = !this.taskEditingEnabled;
     this.taskIsBeingEdited = !this.taskIsBeingEdited;
     this.taskIsFinishedEditing = !this.taskIsFinishedEditing;
+  }
+
+  _toggleTaskListEditing() {
+    this.taskListEditingEnabled = !this.taskListEditingEnabled;
+    this.taskListIsBeingEdited = !this.taskListIsBeingEdited;
+    this.taskListIsFinishedEditing = !this.taskListIsFinishedEditing;
+  }
+
+  _getNodeObj(node) {
+    if (node.classList.contains("task")) {
+      const obj = this.allTasks.find((task) => task.id === node.dataset.id);
+
+      return obj;
+    }
+
+    if (node.classList.contains("task-list")) {
+      const obj = this.allTaskLists.find(
+        (taskList) => taskList.id === node.dataset.id
+      );
+
+      return obj;
+    }
   }
 
   _manageTaskId(task) {
@@ -231,9 +373,24 @@ class App {
     this._processTaskTextInput();
   }
 
+  _handleTaskListEdit() {
+    this._toggleTaskListEditing();
+    this._processTaskListTextInput();
+
+    this._setLocalStorage();
+  }
+
   _handleNewTaskCreation(e) {
     if (e.target.classList.contains("new-task")) this.newTask(e);
     if (e.target.classList.contains("new-task-list")) this.newTaskList(e);
+  }
+
+  _renderAllTaskLists() {
+    this.allTaskLists.forEach((taskList) => ui._displayNewTaskList(taskList));
+  }
+
+  _renderAllTasks() {
+    this.allTasks.forEach((task) => ui._displayNewTask(task));
   }
 
   _setLocalStorage() {
@@ -245,16 +402,26 @@ class App {
     const taskListData = JSON.parse(localStorage.getItem("taskLists"));
     const taskData = JSON.parse(localStorage.getItem("tasks"));
 
-    if (!taskListData || !taskData) return;
+    if (!taskListData) return;
 
     this.allTaskLists = taskListData;
     this.allTasks = taskData;
 
     // Add logic for iterating through all taskLists and rendering each in order
+    this._renderAllTaskLists();
 
     // Add logic for iterating through all tasks and rendering each in their respective tasklists
+    // this._renderAllTasks();
   }
 }
 
 const app = new App();
 const ui = new UI();
+app._getLocalStorage();
+
+document.addEventListener("keypress", function (e) {
+  if (e.code === "KeyL") {
+    localStorage.clear();
+    console.log("LS Cleared");
+  }
+});
