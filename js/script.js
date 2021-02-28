@@ -14,7 +14,7 @@ class Task {
   parentTaskList;
 
   constructor(textContent, id) {
-    this.textContent = textContent;
+    this.textContent = "Add New Task";
   }
 }
 
@@ -60,15 +60,16 @@ class UI {
   }
 
   _displayNewTaskList(taskList) {
+    //prettier-ignore
     const html = `
     <div data-edited="false" data-id="${taskList.id}" class="task-list">
     <div class="task-list__topbar">
-      <h2 class="task-list__topbar__heading">${
-        taskList.textContent || "New Task List"
-      }</h2>
-      <div class="task-list__text-area hidden" contenteditable="true"></div>
+      <h2 class="task-list__topbar__heading">${taskList.textContent || "New Task List"}</h2>
+      <div class="task-list__text-area hidden" contenteditable="true">${taskList.textContent || "New Task List"}</div>
       <button class="task-list__topbar__btn">EDIT</button>
     </div>
+      <div class="task-list__task-container"></div>
+      <button class="new-task-btn">Add New Task</button>
     </div>
     `;
 
@@ -79,15 +80,61 @@ class UI {
     return newestList;
   }
 
-  _displayNewTask(el) {
+  _displayEmptyTask(taskList) {
+    const taskListContainer = taskList.querySelector(
+      ".task-list__task-container"
+    );
     const html = `
     <div data-edited="false" class="new-task">
-    <span class="new-task__text">Add a new task</span>
-    <div class="new-task__text-area hidden" contenteditable="true"></div>
-  </div>
+      <span class="new-task__text"></span>
+      <div class="new-task__text-area hidden" contenteditable="true"></div>
+      <div class="new-task__priority-bar"></div>
+    </div>
     `;
 
-    el.closest(".task-list").insertAdjacentHTML("beforeend", html);
+    return taskListContainer.insertAdjacentHTML("beforeend", html);
+  }
+
+  _displayNewTask(el, task) {
+    let html;
+
+    if (task) {
+      //prettier-ignore
+      html = `
+      <div data-edited="${task.textContent === "Add New Task" ? "false" : "true"}" data-id="${task.id}" class="new-task">
+        <span class="new-task__text">${task.textContent}</span>
+        <div class="new-task__text-area hidden" contenteditable="true">${task.textContent}</div>
+        <div class="new-task__priority-bar"></div>
+      </div>
+      `;
+
+      el.querySelector(".task-list__task-container").insertAdjacentHTML(
+        "beforeend",
+        html
+      );
+    } else {
+      //prettier-ignore
+      html = `
+      <div data-edited="false" class="new-task">
+        <span class="new-task__text">Add New Task</span>
+        <div class="new-task__text-area hidden" contenteditable="true">${task.textContent}</div>
+        <div class="new-task__priority-bar"></div>
+    </div>
+      `;
+
+      if (el.closest(".task-list__task-container")) {
+        el.closest(".task-list__task-container").insertAdjacentHTML(
+          "beforeend",
+          html
+        );
+      } else if (el.querySelector(".task-list__task-container")) {
+        el.querySelector(".task-list__task-container").insertAdjacentHTML(
+          "beforeend",
+          html
+        );
+      }
+    }
+
     const allTasks = el.querySelectorAll(".new-task");
     return allTasks[allTasks.length - 1];
   }
@@ -151,57 +198,57 @@ class App {
 
     this._setActiveTaskList(newTaskList);
 
-    this.newTaskFromList(this.activeTaskListHTML);
-
     ui._horizontalScroll();
 
     this._setLocalStorage();
   }
 
-  newTaskFromList(currentTaskList) {
-    const newTask = new Task();
-    const parentTaskListObj = this._getNodeObj(currentTaskList);
-    newTask.parentTaskList = parentTaskListObj.id;
-    this.allTasks.push(newTask);
-    const newestTask = ui._displayNewTask(currentTaskList);
-
-    this.activeTaskObj = newTask;
-    this.activeTaskHTML = newestTask;
-
-    this._setLocalStorage();
-  }
-
   newTask(e) {
+    let newTaskElement;
     const target = e.target;
     const parentTaskList = target.closest(".task-list");
     const parentTaskListObj = this._getNodeObj(parentTaskList);
 
-    if (target.className !== "new-task") return;
-    if (target.dataset.edited === "true") {
-      return this.editTaskTextContent(target);
-    }
+    if (target.className !== "new-task-btn") return;
 
+    // Enable Task Editing
     this._toggleTaskEditing();
 
+    // Create & Define New Task Object
     const newTask = new Task();
     newTask.parentTaskList = parentTaskListObj.id;
     this.allTasks.push(newTask);
     this.activeTaskObj = newTask;
-    this.activeTaskHTML = e.target;
 
-    this._manageTaskId(target);
-    this._manageTaskEdited(target);
+    // Create Empty Task in List
+    ui._displayEmptyTask(parentTaskList);
 
-    ui._toggleTaskTextInput(target);
-    ui._displayNewTask(target);
+    // Define Current Task as Var & Active Task
+    const allCurrentTasks = target.previousElementSibling.querySelectorAll(
+      ".new-task"
+    );
+    newTaskElement = allCurrentTasks[allCurrentTasks.length - 1];
+    this.activeTaskHTML = newTaskElement;
 
+    // Add ID to New Task
+    this._manageTaskId(newTaskElement);
+
+    // Focus New Task for Input
+    ui._toggleTaskTextInput(newTaskElement);
+
+    // Add Edited Attribute to New Task
+    this._manageTaskEdited(newTaskElement);
+
+    // Update Parent Tasklist Child List
     this._updateChildTaskList(parentTaskListObj);
 
+    // Update localStorage
     this._setLocalStorage();
   }
 
-  _setActiveTask() {
-    // Some Code
+  _setActiveTask(target) {
+    let taskObject;
+    let taskHTML;
   }
 
   _setActiveTaskList(data) {
@@ -238,7 +285,7 @@ class App {
     const currentTask = this.allTasks.find(
       (storedTask) => storedTask.id === task.dataset.id
     );
-    this._processTaskTextInput();
+    this._processTaskTextInput(task);
 
     this._setLocalStorage();
   }
@@ -267,11 +314,15 @@ class App {
 
     if (e.target.classList.contains("task-board")) {
       if (this.taskIsBeingEdited) {
-        this._handleTaskEdit();
+        this._handleTaskEdit(e.target);
       }
       if (this.taskListIsBeingEdited) {
         this._handleTaskListEdit(e.target);
       }
+    }
+
+    if (e.target.classList.contains("new-task")) {
+      this._handleExistingTaskEdit(e.target);
     }
 
     if (e.target.classList.contains("task-list__topbar__heading")) {
@@ -302,7 +353,7 @@ class App {
     const taskText = this.activeTaskHTML.querySelector(".new-task__text-area")
       .textContent;
 
-    if (!taskText) return this._undoTaskCreation(this.activeTaskHTML);
+    // if (!taskText) return this._undoTaskCreation(this.activeTaskHTML);
 
     this.activeTaskObj.textContent = taskText;
 
@@ -334,7 +385,7 @@ class App {
   }
 
   _getNodeObj(node) {
-    if (node.classList.contains("task")) {
+    if (node.classList.contains("new-task")) {
       const obj = this.allTasks.find((task) => task.id === node.dataset.id);
 
       return obj;
@@ -368,9 +419,21 @@ class App {
     this.allTasks.pop();
   }
 
-  _handleTaskEdit() {
+  _handleTaskEdit(target) {
     this._toggleTaskEditing();
     this._processTaskTextInput();
+
+    this._setLocalStorage();
+  }
+
+  _handleExistingTaskEdit(target) {
+    this.activeTaskHTML = target;
+    this.activeTaskObj = this._getNodeObj(target);
+
+    this._toggleTaskEditing();
+    this._processTaskTextInput();
+
+    this._setLocalStorage();
   }
 
   _handleTaskListEdit() {
@@ -381,7 +444,7 @@ class App {
   }
 
   _handleNewTaskCreation(e) {
-    if (e.target.classList.contains("new-task")) this.newTask(e);
+    if (e.target.classList.contains("new-task-btn")) this.newTask(e);
     if (e.target.classList.contains("new-task-list")) this.newTaskList(e);
   }
 
@@ -390,7 +453,14 @@ class App {
   }
 
   _renderAllTasks() {
-    this.allTasks.forEach((task) => ui._displayNewTask(task));
+    for (let i = 0; i < this.allTasks.length; i++) {
+      const currentTask = this.allTasks[i];
+      const parentTasklist = taskBoard.querySelector(
+        `.task-list[data-id="${currentTask.parentTaskList}"]`
+      );
+
+      ui._displayNewTask(parentTasklist, currentTask);
+    }
   }
 
   _setLocalStorage() {
@@ -411,7 +481,7 @@ class App {
     this._renderAllTaskLists();
 
     // Add logic for iterating through all tasks and rendering each in their respective tasklists
-    // this._renderAllTasks();
+    this._renderAllTasks();
   }
 }
 

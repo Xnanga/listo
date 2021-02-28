@@ -17,13 +17,19 @@
 
   // Colours
   --default-font-color: #0a0a0a;
-  --color-dark-blue: #5680e9;
-  --color-ice-blue: #84ceeb;
-  --color-sky-blue: #5ab9ea;
+  --color-darkest: #141414;
+  --color-darker: #424242;
+  --color-dark: #616161;
   --color-light-grey: #c1c8e4;
-  --color-dark-purple: #8860d0;
+  --color-darker-blue: #2e445b;
+  --color-dark-blue: #395470;
+  --color-light-blue: #5180b1;
 
   // Sizes
+}
+
+::selection {
+  background: #8b91e0;
 }
 
 // Reset
