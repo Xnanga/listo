@@ -50,6 +50,7 @@ a {
   text-decoration: none; }
 
 .task-list {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -115,7 +116,7 @@ a {
   border: 2px solid #000000;
   border-radius: 3px;
   margin-top: 1rem;
-  padding: 1.5rem;
+  padding: 1.75rem;
   font-size: 2rem;
   line-height: 1.25;
   color: #ffffff;
@@ -124,6 +125,7 @@ a {
   box-shadow: 4px 4px 2px 0px rgba(0, 0, 0, 0.75);
   overflow-wrap: break-word;
   white-space: pre-wrap;
+  overflow: hidden;
   transition: all 0.2s; }
   .new-task:hover {
     background-color: var(--color-darker);
@@ -135,8 +137,6 @@ a {
     width: 100%;
     min-height: 100%;
     height: auto;
-    border: 3px solid #cccccc;
-    padding: 5px;
     background-color: transparent;
     overflow: hidden;
     resize: none;
@@ -147,8 +147,12 @@ a {
     top: 0;
     left: 0;
     height: 100%;
-    width: 0.5rem;
-    background: linear-gradient(#696969 0%, #9e9e9e 100%); }
+    width: 0.75rem;
+    background: linear-gradient(#696969 0%, #9e9e9e 100%);
+    transition: transform 0.2s ease-out;
+    cursor: pointer; }
+    .new-task__priority-bar:hover {
+      transform: scaleX(2); }
     .new-task__priority-bar--high {
       background-color: red;
       background: linear-gradient(#f07470 0%, #ea4c46 100%); }
@@ -172,6 +176,59 @@ a {
   .new-task-btn:hover {
     border: 2px dashed var(--color-light-blue);
     font-size: 2.25rem; }
+
+.ellipsis__container {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 3rem;
+  width: 1.5rem;
+  margin-top: 0.5rem;
+  margin-right: 0.5rem;
+  padding-left: 0.5rem;
+  transition: all 0.2s;
+  cursor: pointer; }
+  .ellipsis__container:hover > .ellipsis__dot {
+    background-color: var(--color-light-blue); }
+
+.ellipsis__dot {
+  height: 5px;
+  width: 5px;
+  border-radius: 50%;
+  padding: 0.25rem;
+  margin-top: 0.25rem;
+  background-color: var(--color-dark);
+  pointer-events: none; }
+
+.priority-menu {
+  position: absolute;
+  display: grid;
+  grid-template-rows: repeat(3, 1fr);
+  grid-template-columns: 1fr;
+  height: 12rem;
+  width: 10rem;
+  background-color: var(--color-light-blue);
+  box-shadow: 4px 4px 2px 0px rgba(0, 0, 0, 0.75);
+  outline: none; }
+  .priority-menu__item {
+    color: #ffffff;
+    background-color: var(--color-darkest);
+    border-bottom: 2px solid var(--color-light-grey);
+    font-size: 1.5rem;
+    font-weight: 700;
+    cursor: pointer; }
+    .priority-menu__item--high:hover {
+      color: #ea4c46;
+      border-bottom: 2px solid #ea4c46; }
+    .priority-menu__item--medium:hover {
+      color: #fd7f2c;
+      border-bottom: 2px solid #fd7f2c; }
+    .priority-menu__item--low:hover {
+      color: #57c84d;
+      border-bottom: 2px solid #57c84d; }
 
 .nav-bar {
   position: fixed;

@@ -7,11 +7,13 @@ const taskBoard = document.querySelector(".task-board");
 
 // DOM Elements
 const newTaskListBtn = document.querySelector(".new-task-list");
+const priorityMenu = document.querySelector(".priority-menu");
 
 // Classes
 class Task {
   id = (Date.now() + "").slice(-10);
   parentTaskList;
+  priority;
 
   constructor(textContent, id) {
     this.textContent = "Add New Task";
@@ -29,6 +31,8 @@ class TaskList {
 }
 
 class UI {
+  priorityMenuOpen = false;
+
   constructor() {}
 
   _toggleTaskTextInput(task) {
@@ -66,7 +70,11 @@ class UI {
     <div class="task-list__topbar">
       <h2 class="task-list__topbar__heading">${taskList.textContent || "New Task List"}</h2>
       <div class="task-list__text-area hidden" contenteditable="true">${taskList.textContent || "New Task List"}</div>
-      <button class="task-list__topbar__btn">EDIT</button>
+      <div class="ellipsis__container">
+        <div class="ellipsis__dot"></div>
+        <div class="ellipsis__dot"></div>
+        <div class="ellipsis__dot"></div>
+      </div>
     </div>
       <div class="task-list__task-container"></div>
       <button class="new-task-btn">Add New Task</button>
@@ -89,6 +97,11 @@ class UI {
       <span class="new-task__text"></span>
       <div class="new-task__text-area hidden" contenteditable="true"></div>
       <div class="new-task__priority-bar"></div>
+      <div class="ellipsis__container">
+        <div class="ellipsis__dot"></div>
+        <div class="ellipsis__dot"></div>
+        <div class="ellipsis__dot"></div>
+    </div>
     </div>
     `;
 
@@ -104,7 +117,12 @@ class UI {
       <div data-edited="${task.textContent === "Add New Task" ? "false" : "true"}" data-id="${task.id}" class="new-task">
         <span class="new-task__text">${task.textContent}</span>
         <div class="new-task__text-area hidden" contenteditable="true">${task.textContent}</div>
-        <div class="new-task__priority-bar"></div>
+        <div class="new-task__priority-bar new-task__priority-bar--${task.priority}"></div>
+        <div class="ellipsis__container">
+          <div class="ellipsis__dot"></div>
+          <div class="ellipsis__dot"></div>
+          <div class="ellipsis__dot"></div>
+        </div>
       </div>
       `;
 
@@ -118,8 +136,13 @@ class UI {
       <div data-edited="false" class="new-task">
         <span class="new-task__text">Add New Task</span>
         <div class="new-task__text-area hidden" contenteditable="true">${task.textContent}</div>
-        <div class="new-task__priority-bar"></div>
-    </div>
+        <div class="new-task__priority-bar new-task__priority-bar--${task.priority}"></div>
+        <div class="ellipsis__container">
+          <div class="ellipsis__dot"></div>
+          <div class="ellipsis__dot"></div>
+          <div class="ellipsis__dot"></div>
+        </div>
+      </div>
       `;
 
       if (el.closest(".task-list__task-container")) {
@@ -161,11 +184,57 @@ class UI {
       taskList.textContent;
   }
 
+  _displayPriorityMenu(e) {
+    this.priorityMenuOpen = true;
+    this._moveElementToCursor(e, priorityMenu);
+    priorityMenu.classList.remove("hidden");
+  }
+
+  _removePriorityMenu() {
+    this.priorityMenuOpen = false;
+    priorityMenu.classList.add("hidden");
+  }
+
+  _changeTaskPriorityStrip(priority) {
+    const priorityStrip = app.activeTaskHTML.querySelector(
+      ".new-task__priority-bar"
+    );
+
+    priorityStrip.className = "";
+    priorityStrip.classList.add("new-task__priority-bar");
+
+    switch (priority) {
+      case "high":
+        app.activeTaskObj.priority = "high";
+        priorityStrip.classList.add("new-task__priority-bar--high");
+        break;
+      case "medium":
+        app.activeTaskObj.priority = "medium";
+        priorityStrip.classList.add("new-task__priority-bar--medium");
+        break;
+      case "low":
+        app.activeTaskObj.priority = "low";
+        priorityStrip.classList.add("new-task__priority-bar--low");
+    }
+
+    this._removePriorityMenu();
+    app._setLocalStorage();
+  }
+
   _horizontalScroll() {
     taskBoard.scroll({
       left: 10000,
       behavior: "smooth",
     });
+  }
+
+  _moveElementToCursor(eventObj, el) {
+    const mouseY = eventObj.clientY;
+    const mouseX = eventObj.clientX;
+
+    el.style.position = "absolute";
+    el.style.top = `${mouseY}px`;
+    el.style.left = `${mouseX}px`;
   }
 }
 
@@ -305,6 +374,13 @@ class App {
   _attachEventListeners() {
     taskBoard.addEventListener("click", this._clickHandler.bind(this));
     taskBoard.addEventListener("keypress", this._keyPressHandler.bind(this));
+    document.addEventListener("click", this._documentClickHandler.bind(this));
+  }
+
+  _documentClickHandler(e) {
+    if (e.target.classList.contains("priority-menu__item")) {
+      this._handleTaskPriorityChange(e);
+    }
   }
 
   _clickHandler(e) {
@@ -328,6 +404,23 @@ class App {
     if (e.target.classList.contains("task-list__topbar__heading")) {
       this._setActiveTaskList(e.target);
       this._handleTaskListEdit(e.target);
+    }
+
+    if (e.target.classList.contains("new-task__priority-bar")) {
+      ui._displayPriorityMenu(e);
+
+      this.activeTaskHTML = e.target.closest(".new-task");
+      this.activeTaskObj = this.allTasks.find(
+        (task) => task.id === this.activeTaskHTML.dataset.id
+      );
+    }
+
+    if (
+      !e.target.classList.contains("priority-menu__item") &&
+      !e.target.classList.contains("new-task__priority-bar") &&
+      ui.priorityMenuOpen
+    ) {
+      ui._removePriorityMenu();
     }
 
     if (!this.taskEditingEnabled) return;
@@ -446,6 +539,20 @@ class App {
   _handleNewTaskCreation(e) {
     if (e.target.classList.contains("new-task-btn")) this.newTask(e);
     if (e.target.classList.contains("new-task-list")) this.newTaskList(e);
+  }
+
+  _handleTaskPriorityChange(e) {
+    if (e.target.classList.contains("priority-menu__item--high")) {
+      ui._changeTaskPriorityStrip("high");
+    }
+
+    if (e.target.classList.contains("priority-menu__item--medium")) {
+      ui._changeTaskPriorityStrip("medium");
+    }
+
+    if (e.target.classList.contains("priority-menu__item--low")) {
+      ui._changeTaskPriorityStrip("low");
+    }
   }
 
   _renderAllTaskLists() {
