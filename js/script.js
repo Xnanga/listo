@@ -9,6 +9,7 @@ const focusOverlay = document.querySelector(".focus-overlay");
 // DOM Elements
 const newTaskListBtn = document.querySelector(".new-task-list");
 const priorityMenu = document.querySelector(".priority-menu");
+const taskMenu = document.querySelector(".task-menu");
 
 // Classes
 class Task {
@@ -33,6 +34,7 @@ class TaskList {
 
 class UI {
   priorityMenuOpen = false;
+  taskMenuOpen = false;
 
   constructor() {}
 
@@ -194,6 +196,17 @@ class UI {
   _removePriorityMenu() {
     this.priorityMenuOpen = false;
     priorityMenu.classList.add("hidden");
+  }
+
+  _displayTaskMenu(e) {
+    this.taskMenuOpen = true;
+    this._moveElementToCursor(e, taskMenu);
+    taskMenu.classList.remove("hidden");
+  }
+
+  _removeTaskMenu() {
+    this.taskMenuOpen = false;
+    taskMenu.classList.add("hidden");
   }
 
   _displayFocusOverlay(el) {
@@ -406,6 +419,8 @@ class App {
     // Only editable task is above black overlay in z-index
     // Trigger finished editing or undo creation when black overlay clicked
 
+    console.log(e.target);
+
     if (e.target.classList.contains("task-board")) {
       if (this.taskIsBeingEdited) {
         this._handleTaskEdit(e.target);
@@ -446,12 +461,31 @@ class App {
       );
     }
 
+    if (e.target.classList.contains("ellipsis__container")) {
+      // Needs Seperated Between Task and Tasklist Ellipsis
+
+      ui._displayTaskMenu(e);
+
+      this.activeTaskHTML = e.target.closest(".new-task");
+      this.activeTaskObj = this.allTasks.find(
+        (task) => task.id === this.activeTaskHTML.dataset.id
+      );
+    }
+
     if (
       !e.target.classList.contains("priority-menu__item") &&
       !e.target.classList.contains("new-task__priority-bar") &&
       ui.priorityMenuOpen
     ) {
       ui._removePriorityMenu();
+    }
+
+    if (
+      !e.target.classList.contains("task-menu") &&
+      !e.target.classList.contains("ellipsis__container") &&
+      ui.taskMenuOpen
+    ) {
+      ui._removeTaskMenu();
     }
 
     if (!this.taskEditingEnabled) return;
@@ -476,8 +510,6 @@ class App {
   _processTaskTextInput(target) {
     const taskText = this.activeTaskHTML.querySelector(".new-task__text-area")
       .textContent;
-
-    // if (!taskText) return this._undoTaskCreation(this.activeTaskHTML);
 
     this.activeTaskObj.textContent = taskText;
 
