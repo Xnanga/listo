@@ -4,6 +4,7 @@
 const navBar = document.querySelector(".nav-bar");
 const utilityBar = document.querySelector(".utility-bar");
 const taskBoard = document.querySelector(".task-board");
+const focusOverlay = document.querySelector(".focus-overlay");
 
 // DOM Elements
 const newTaskListBtn = document.querySelector(".new-task-list");
@@ -195,6 +196,18 @@ class UI {
     priorityMenu.classList.add("hidden");
   }
 
+  _displayFocusOverlay(el) {
+    focusOverlay.classList.remove("hidden");
+    if (el) el.style.zIndex = "20";
+  }
+
+  _removeFocusOverlay(el) {
+    focusOverlay.classList.add("hidden");
+    if (el) {
+      el.style.zIndex = "5";
+    }
+  }
+
   _changeTaskPriorityStrip(priority) {
     const priorityStrip = app.activeTaskHTML.querySelector(
       ".new-task__priority-bar"
@@ -381,6 +394,11 @@ class App {
     if (e.target.classList.contains("priority-menu__item")) {
       this._handleTaskPriorityChange(e);
     }
+
+    if (e.target.classList.contains("focus-overlay")) {
+      const focusedTask = this.activeTaskHTML;
+      ui._removeFocusOverlay(focusedTask);
+    }
   }
 
   _clickHandler(e) {
@@ -398,10 +416,23 @@ class App {
     }
 
     if (e.target.classList.contains("new-task")) {
+      this.activeTaskHTML = e.target;
+      this.activeTaskObj = this._getNodeObj(this.activeTaskHTML);
+
       this._handleExistingTaskEdit(e.target);
+      ui._displayFocusOverlay(e.target);
+    }
+
+    if (e.target.classList.contains("new-task__text-area")) {
+      this.activeTaskHTML = e.target.closest(".new-task");
+      this.activeTaskObj = this._getNodeObj(this.activeTaskHTML);
+
+      ui._displayFocusOverlay(this.activeTaskHTML);
     }
 
     if (e.target.classList.contains("task-list__topbar__heading")) {
+      if (this.taskListIsBeingEdited) return;
+
       this._setActiveTaskList(e.target);
       this._handleTaskListEdit(e.target);
     }

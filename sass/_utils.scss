@@ -1,4 +1,11 @@
+@keyframes rotateOutline {
+  50% {
+    outline: 2px dashed var(--color-dark-blue);
+  }
+}
+
 .hidden {
   display: none;
   visibility: hidden;
+  opacity: 0;
 }

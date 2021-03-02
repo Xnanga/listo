@@ -51,7 +51,6 @@ a {
 
 .task-list {
   position: relative;
-  z-index: 5;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -64,7 +63,8 @@ a {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 1.25rem; }
+    font-size: 1.25rem;
+    margin-bottom: 1rem; }
     .task-list__topbar__heading {
       width: 90%;
       padding: 1rem;
@@ -86,8 +86,9 @@ a {
     background-color: #1a1a1a;
     overflow: hidden;
     resize: none;
-    outline: none;
+    outline: 2px dashed var(--color-light-blue);
     border: none;
+    animation: rotateOutline 1.2s infinite;
     transition: all 0.2s; }
 
 .new-task-list {
@@ -209,7 +210,7 @@ a {
 
 .priority-menu {
   position: absolute;
-  z-index: 10;
+  z-index: 50;
   display: grid;
   grid-template-rows: repeat(3, 1fr);
   grid-template-columns: 1fr;
@@ -278,10 +279,25 @@ a {
     width: 100%;
     height: 100%; }
 
+.focus-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  height: 100%;
+  width: 100%;
+  background-color: #000000;
+  opacity: 0.6; }
+
 h2 {
   font-size: 2.25rem;
   color: var(--color-light-blue); }
 
+@keyframes rotateOutline {
+  50% {
+    outline: 2px dashed var(--color-dark-blue); } }
+
 .hidden {
   display: none;
-  visibility: hidden; }
+  visibility: hidden;
+  opacity: 0; }
