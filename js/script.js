@@ -109,7 +109,7 @@ class UI {
         <div class="ellipsis-btn__dot"></div>
         <div class="ellipsis-btn__dot"></div>
       </div>
-      <div class="task-card__status">${task.statusText}</div>
+      <div class="task-card__status">No Due Date Set</div>
     </div>
     `;
 

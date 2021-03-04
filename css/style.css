@@ -194,6 +194,7 @@ a {
     opacity: 0.5; }
   .task-card--completed {
     text-decoration: line-through;
+    color: var(--color-hard-green);
     opacity: 0.55; }
   .task-card--blocked {
     text-decoration: underline;
