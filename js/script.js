@@ -7,7 +7,7 @@ const taskBoard = document.querySelector(".task-board");
 const focusOverlay = document.querySelector(".focus-overlay");
 
 // DOM Elements
-const newTaskListBtn = document.querySelector(".new-task-list");
+const newTaskListBtn = document.querySelector(".new-task-list-btn");
 const priorityMenu = document.querySelector(".priority-menu");
 const taskMenu = document.querySelector(".task-menu");
 
@@ -15,7 +15,10 @@ const taskMenu = document.querySelector(".task-menu");
 class Task {
   id = (Date.now() + "").slice(-10);
   parentTaskList;
-  priority;
+  priority = "none";
+  status = "due";
+  statusText = "No Due Date Set";
+  dueDate;
 
   constructor(textContent, id) {
     this.textContent = "Add New Task";
@@ -35,12 +38,13 @@ class TaskList {
 class UI {
   priorityMenuOpen = false;
   taskMenuOpen = false;
+  focusOverlayVisible = false;
 
   constructor() {}
 
   _toggleTaskTextInput(task) {
-    const newTaskText = task.querySelector(".new-task__text");
-    const newTaskTextInput = task.querySelector(".new-task__text-area");
+    const newTaskText = task.querySelector(".task-card__text");
+    const newTaskTextInput = task.querySelector(".task-card__text-area");
 
     newTaskText.classList.toggle("hidden");
     newTaskTextInput.classList.toggle("hidden");
@@ -73,10 +77,10 @@ class UI {
     <div class="task-list__topbar">
       <h2 class="task-list__topbar__heading">${taskList.textContent || "New Task List"}</h2>
       <div class="task-list__text-area hidden" contenteditable="true">${taskList.textContent || "New Task List"}</div>
-      <div class="ellipsis__container">
-        <div class="ellipsis__dot"></div>
-        <div class="ellipsis__dot"></div>
-        <div class="ellipsis__dot"></div>
+      <div class="ellipsis-btn__container">
+        <div class="ellipsis-btn__dot"></div>
+        <div class="ellipsis-btn__dot"></div>
+        <div class="ellipsis-btn__dot"></div>
       </div>
     </div>
       <div class="task-list__task-container"></div>
@@ -96,15 +100,16 @@ class UI {
       ".task-list__task-container"
     );
     const html = `
-    <div data-edited="false" class="new-task">
-      <span class="new-task__text"></span>
-      <div class="new-task__text-area hidden" contenteditable="true"></div>
-      <div class="new-task__priority-bar"></div>
-      <div class="ellipsis__container">
-        <div class="ellipsis__dot"></div>
-        <div class="ellipsis__dot"></div>
-        <div class="ellipsis__dot"></div>
-    </div>
+    <div data-edited="false" class="task-card">
+      <span class="task-card__text"></span>
+      <div class="task-card__text-area hidden" contenteditable="true"></div>
+      <div class="task-card__priority-bar"></div>
+      <div class="ellipsis-btn__container">
+        <div class="ellipsis-btn__dot"></div>
+        <div class="ellipsis-btn__dot"></div>
+        <div class="ellipsis-btn__dot"></div>
+      </div>
+      <div class="task-card__status">${task.statusText}</div>
     </div>
     `;
 
@@ -117,15 +122,16 @@ class UI {
     if (task) {
       //prettier-ignore
       html = `
-      <div data-edited="${task.textContent === "Add New Task" ? "false" : "true"}" data-id="${task.id}" class="new-task">
-        <span class="new-task__text">${task.textContent}</span>
-        <div class="new-task__text-area hidden" contenteditable="true">${task.textContent}</div>
-        <div class="new-task__priority-bar new-task__priority-bar--${task.priority}"></div>
-        <div class="ellipsis__container">
-          <div class="ellipsis__dot"></div>
-          <div class="ellipsis__dot"></div>
-          <div class="ellipsis__dot"></div>
+      <div data-edited="${task.textContent === "Add New Task" ? "false" : "true"}" data-id="${task.id}" class="task-card task-card--${task.status}">
+        <span class="task-card__text">${task.textContent}</span>
+        <div class="task-card__text-area hidden" contenteditable="true">${task.textContent}</div>
+        <div class="task-card__priority-bar task-card__priority-bar--${task.priority}"></div>
+        <div class="ellipsis-btn__container">
+          <div class="ellipsis-btn__dot"></div>
+          <div class="ellipsis-btn__dot"></div>
+          <div class="ellipsis-btn__dot"></div>
         </div>
+        <div class="task-card__status">${task.statusText}</div>
       </div>
       `;
 
@@ -136,15 +142,16 @@ class UI {
     } else {
       //prettier-ignore
       html = `
-      <div data-edited="false" class="new-task">
-        <span class="new-task__text">Add New Task</span>
-        <div class="new-task__text-area hidden" contenteditable="true">${task.textContent}</div>
-        <div class="new-task__priority-bar new-task__priority-bar--${task.priority}"></div>
-        <div class="ellipsis__container">
-          <div class="ellipsis__dot"></div>
-          <div class="ellipsis__dot"></div>
-          <div class="ellipsis__dot"></div>
+      <div data-edited="false" class="task-card">
+        <span class="task-card__text">Add New Task</span>
+        <div class="task-card__text-area hidden" contenteditable="true">${task.textContent}</div>
+        <div class="task-card__priority-bar task-card__priority-bar--${task.priority}"></div>
+        <div class="ellipsis-btn__container">
+          <div class="ellipsis-btn__dot"></div>
+          <div class="ellipsis-btn__dot"></div>
+          <div class="ellipsis-btn__dot"></div>
         </div>
+        <div class="task-card__status">${task.statusText}</div>
       </div>
       `;
 
@@ -161,15 +168,38 @@ class UI {
       }
     }
 
-    const allTasks = el.querySelectorAll(".new-task");
+    const allTasks = el.querySelectorAll(".task-card");
     return allTasks[allTasks.length - 1];
   }
 
-  _populateTextContent(task) {
-    const taskHTML = taskBoard.querySelector(`.new-task[data-id="${task.id}"]`);
+  switchTaskStatus(newStatus) {
+    const activeTask = app.activeTaskHTML;
+    console.log(activeTask);
 
-    taskHTML.querySelector(".new-task__text").textContent = task.textContent;
-    taskHTML.querySelector(".new-task__text-area").value = task.textContent;
+    activeTask.classList = "";
+
+    if (newStatus === "completed") {
+      activeTask.classList.add("task-card");
+      activeTask.classList.add("task-card--completed");
+    }
+
+    if (newStatus === "blocked") {
+      activeTask.classList.add("task-card");
+      activeTask.classList.add("task-card--blocked");
+    }
+
+    if (newStatus === "delete") {
+      activeTask = "";
+    }
+  }
+
+  _populateTextContent(task) {
+    const taskHTML = taskBoard.querySelector(
+      `.task-card[data-id="${task.id}"]`
+    );
+
+    taskHTML.querySelector(".task-card__text").textContent = task.textContent;
+    taskHTML.querySelector(".task-card__text-area").value = task.textContent;
   }
 
   _populateTaskListContent(taskList) {
@@ -210,11 +240,13 @@ class UI {
   }
 
   _displayFocusOverlay(el) {
+    this.focusOverlayVisible = true;
     focusOverlay.classList.remove("hidden");
     if (el) el.style.zIndex = "20";
   }
 
   _removeFocusOverlay(el) {
+    this.focusOverlayVisible = false;
     focusOverlay.classList.add("hidden");
     if (el) {
       el.style.zIndex = "5";
@@ -223,24 +255,24 @@ class UI {
 
   _changeTaskPriorityStrip(priority) {
     const priorityStrip = app.activeTaskHTML.querySelector(
-      ".new-task__priority-bar"
+      ".task-card__priority-bar"
     );
 
     priorityStrip.className = "";
-    priorityStrip.classList.add("new-task__priority-bar");
+    priorityStrip.classList.add("task-card__priority-bar");
 
     switch (priority) {
       case "high":
         app.activeTaskObj.priority = "high";
-        priorityStrip.classList.add("new-task__priority-bar--high");
+        priorityStrip.classList.add("task-card__priority-bar--high");
         break;
       case "medium":
         app.activeTaskObj.priority = "medium";
-        priorityStrip.classList.add("new-task__priority-bar--medium");
+        priorityStrip.classList.add("task-card__priority-bar--medium");
         break;
       case "low":
         app.activeTaskObj.priority = "low";
-        priorityStrip.classList.add("new-task__priority-bar--low");
+        priorityStrip.classList.add("task-card__priority-bar--low");
     }
 
     this._removePriorityMenu();
@@ -320,7 +352,7 @@ class App {
 
     // Define Current Task as Var & Active Task
     const allCurrentTasks = target.previousElementSibling.querySelectorAll(
-      ".new-task"
+      ".task-card"
     );
     newTaskElement = allCurrentTasks[allCurrentTasks.length - 1];
     this.activeTaskHTML = newTaskElement;
@@ -389,7 +421,7 @@ class App {
     const taskListHTML = taskBoard.querySelector(
       `.task-list[data-id="${taskList.id}"]`
     );
-    const allChildTasks = taskListHTML.querySelectorAll(".new-task");
+    const allChildTasks = taskListHTML.querySelectorAll(".task-card");
     const allChildTasksIds = [];
 
     allChildTasks.forEach((task) => allChildTasksIds.push(task.dataset.id));
@@ -404,21 +436,43 @@ class App {
   }
 
   _documentClickHandler(e) {
+    console.log(e.target);
+
+    // When Priority Menu Item Clicked
     if (e.target.classList.contains("priority-menu__item")) {
       this._handleTaskPriorityChange(e);
     }
 
+    // When Dark Focus Overlay Clicked
     if (e.target.classList.contains("focus-overlay")) {
       const focusedTask = this.activeTaskHTML;
       ui._removeFocusOverlay(focusedTask);
     }
+
+    // When Task Complete Button Clicked in Priority Menu
+    if (e.target.classList.contains("task-menu__container--complete")) {
+      console.log("Complete Clicked");
+      this.completeTask();
+    }
+
+    // When Task Blocked Button Clicked in Priority Menu
+    if (e.target.classList.contains("task-menu__container--blocked")) {
+      console.log("Blocked Clicked");
+      this.setBlockedTask();
+    }
+
+    // When Task Delete Button Clicked in Priority Menu
+    if (e.target.classList.contains("task-menu__container--delete")) {
+      console.log("Delete Clicked");
+    }
+
+    // When Task Due Date Button Clicked in Priority Menu
+    if (e.target.classList.contains("task-menu__container--date")) {
+      console.log("Date Clicked");
+    }
   }
 
   _clickHandler(e) {
-    // Display a black overlay across the screen (Enable pointer events)
-    // Only editable task is above black overlay in z-index
-    // Trigger finished editing or undo creation when black overlay clicked
-
     console.log(e.target);
 
     if (e.target.classList.contains("task-board")) {
@@ -430,7 +484,7 @@ class App {
       }
     }
 
-    if (e.target.classList.contains("new-task")) {
+    if (e.target.classList.contains("task-card")) {
       this.activeTaskHTML = e.target;
       this.activeTaskObj = this._getNodeObj(this.activeTaskHTML);
 
@@ -438,8 +492,8 @@ class App {
       ui._displayFocusOverlay(e.target);
     }
 
-    if (e.target.classList.contains("new-task__text-area")) {
-      this.activeTaskHTML = e.target.closest(".new-task");
+    if (e.target.classList.contains("task-card__text-area")) {
+      this.activeTaskHTML = e.target.closest(".task-card");
       this.activeTaskObj = this._getNodeObj(this.activeTaskHTML);
 
       ui._displayFocusOverlay(this.activeTaskHTML);
@@ -452,29 +506,37 @@ class App {
       this._handleTaskListEdit(e.target);
     }
 
-    if (e.target.classList.contains("new-task__priority-bar")) {
+    if (e.target.classList.contains("task-card__priority-bar")) {
       ui._displayPriorityMenu(e);
 
-      this.activeTaskHTML = e.target.closest(".new-task");
+      this.activeTaskHTML = e.target.closest(".task-card");
       this.activeTaskObj = this.allTasks.find(
         (task) => task.id === this.activeTaskHTML.dataset.id
       );
     }
 
-    if (e.target.classList.contains("ellipsis__container")) {
-      // Needs Seperated Between Task and Tasklist Ellipsis
+    if (e.target.classList.contains("ellipsis-btn__container")) {
+      // Needs Seperated Between Task and Tasklist ellipsis-btn
 
-      ui._displayTaskMenu(e);
+      if (ui.focusOverlayVisible) return;
 
-      this.activeTaskHTML = e.target.closest(".new-task");
-      this.activeTaskObj = this.allTasks.find(
-        (task) => task.id === this.activeTaskHTML.dataset.id
-      );
+      if (e.target.closest(".task-card")) {
+        ui._displayTaskMenu(e);
+
+        this.activeTaskHTML = e.target.closest(".task-card");
+        this.activeTaskObj = this.allTasks.find(
+          (task) => task.id === this.activeTaskHTML.dataset.id
+        );
+      }
+
+      if (e.target.closest(".task-list")) {
+        console.log("Task List Ellipsis Click");
+      }
     }
 
     if (
       !e.target.classList.contains("priority-menu__item") &&
-      !e.target.classList.contains("new-task__priority-bar") &&
+      !e.target.classList.contains("task-card__priority-bar") &&
       ui.priorityMenuOpen
     ) {
       ui._removePriorityMenu();
@@ -482,7 +544,7 @@ class App {
 
     if (
       !e.target.classList.contains("task-menu") &&
-      !e.target.classList.contains("ellipsis__container") &&
+      !e.target.classList.contains("ellipsis-btn__container") &&
       ui.taskMenuOpen
     ) {
       ui._removeTaskMenu();
@@ -508,7 +570,7 @@ class App {
   }
 
   _processTaskTextInput(target) {
-    const taskText = this.activeTaskHTML.querySelector(".new-task__text-area")
+    const taskText = this.activeTaskHTML.querySelector(".task-card__text-area")
       .textContent;
 
     this.activeTaskObj.textContent = taskText;
@@ -541,7 +603,7 @@ class App {
   }
 
   _getNodeObj(node) {
-    if (node.classList.contains("new-task")) {
+    if (node.classList.contains("task-card")) {
       const obj = this.allTasks.find((task) => task.id === node.dataset.id);
 
       return obj;
@@ -601,7 +663,7 @@ class App {
 
   _handleNewTaskCreation(e) {
     if (e.target.classList.contains("new-task-btn")) this.newTask(e);
-    if (e.target.classList.contains("new-task-list")) this.newTaskList(e);
+    if (e.target.classList.contains("new-task-list-btn")) this.newTaskList(e);
   }
 
   _handleTaskPriorityChange(e) {
@@ -616,6 +678,26 @@ class App {
     if (e.target.classList.contains("priority-menu__item--low")) {
       ui._changeTaskPriorityStrip("low");
     }
+  }
+
+  completeTask() {
+    this.activeTaskObj.status = "completed";
+    ui.switchTaskStatus("completed");
+    this._setLocalStorage();
+  }
+
+  setBlockedTask() {
+    this.activeTaskObj.status = "blocked";
+    ui.switchTaskStatus("blocked");
+    this._setLocalStorage();
+  }
+
+  deleteTask() {
+    // Some Code
+  }
+
+  setDueDateForTask() {
+    // Some Code
   }
 
   _renderAllTaskLists() {

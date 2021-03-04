@@ -2,6 +2,7 @@
   position: fixed;
   top: 0;
   left: 0;
+  z-index: 40;
 
   height: 5rem;
   width: 100%;
@@ -13,6 +14,7 @@
   position: fixed;
   top: 5rem;
   left: 0;
+  z-index: 40;
 
   height: 5rem;
   width: 100%;
@@ -37,31 +39,32 @@
   padding-left: 2rem;
   padding-bottom: 2rem;
 
+  background-color: rgba(19, 19, 19, 1);
+
   overflow-x: scroll;
   overflow-y: hidden;
 
-  background-color: rgba(19, 19, 19, 1);
-
   &::before {
+    @include absPositionLeftZero;
+
     content: "";
-    background-image: url(../img/email-pattern.png);
-    position: absolute;
-    top: 0;
-    left: 0;
-    opacity: 0.15;
+
     width: 100%;
     height: 100%;
+
+    background-image: url(../img/email-pattern.png);
+    opacity: 0.15;
   }
 }
 
 .focus-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
+  @include absPositionLeftZero;
+
   z-index: 10;
 
   height: 100%;
   width: 100%;
+
   background-color: #000000;
   opacity: 0.6;
 }

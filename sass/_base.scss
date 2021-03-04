@@ -17,19 +17,32 @@
 
   // Colours
   --default-font-color: #0a0a0a;
+
   --color-darkest: #141414;
   --color-darker: #424242;
   --color-dark: #616161;
   --color-light-grey: #c1c8e4;
+
   --color-darker-blue: #2e445b;
   --color-dark-blue: #395470;
   --color-light-blue: #5180b1;
+
+  --color-soft-red: #f07470;
+  --color-hard-red: #ea4c46;
+
+  --color-soft-orange: #fd9346;
+  --color-hard-orange: #fd7f2c;
+
+  --color-soft-green: #83d475;
+  --color-hard-green: #57c84d;
+
+  --color-purple: #8b91e0;
 
   // Sizes
 }
 
 ::selection {
-  background: #8b91e0;
+  background: var(--color-purple);
 }
 
 // Reset

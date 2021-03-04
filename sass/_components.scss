@@ -1,6 +1,5 @@
 .task-list {
   position: relative;
-  // z-index: 5;
 
   display: flex;
   flex-direction: column;
@@ -54,35 +53,35 @@
 
     padding: 1rem;
 
-    color: var(--color-light-blue);
-    background-color: darken(#222222, 3%);
+    outline: 2px dashed var(--color-light-blue);
+    border: none;
 
     overflow: hidden;
     resize: none;
-    outline: 2px dashed var(--color-light-blue);
-    border: none;
+
+    color: var(--color-light-blue);
+    background-color: darken(#222222, 3%);
 
     animation: rotateOutline 1.2s infinite;
     transition: all 0.2s;
   }
 }
 
-.new-task-list {
+.new-task-list-btn {
+  @include flexCentering;
+
   position: relative;
   z-index: 5;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
   height: 5rem;
+
+  border: 2px dashed var(--color-dark-blue);
   border-radius: 3px;
   padding: 1rem;
 
   font-size: 2rem;
   font-weight: 700;
 
-  border: 2px dashed var(--color-dark-blue);
   color: var(--color-light-blue);
   background-color: transparent;
 
@@ -98,24 +97,24 @@
   }
 }
 
-.new-task {
+.task-card {
   position: relative;
   z-index: 5;
 
   display: flex;
   align-items: center;
 
-  min-height: 7.5rem;
+  min-height: 9.5rem;
   border: 2px solid #000000;
   border-radius: 3px;
   margin-top: 1rem;
   padding: 1.75rem;
+  padding-bottom: 2.25rem;
 
   font-size: 2rem;
   line-height: 1.25;
 
   color: #ffffff;
-  background-color: var(--color-darkest);
   background-color: #363537;
   box-shadow: 4px 4px 2px 0px rgba(0, 0, 0, 0.75);
 
@@ -140,17 +139,16 @@
     min-height: 100%;
     height: auto;
 
-    background-color: transparent;
     overflow: hidden;
     resize: none;
     outline: none;
     border: none;
+
+    background-color: transparent;
   }
 
   &__priority-bar {
-    position: absolute;
-    top: 0;
-    left: 0;
+    @include absPositionLeftZero;
 
     height: 100%;
     width: 0.75rem;
@@ -179,18 +177,47 @@
       background: linear-gradient(#83d475 0%, #57c84d 100%);
     }
   }
+
+  &__status {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+
+    width: 100%;
+
+    padding-left: 1.5rem;
+    padding-bottom: 0.5rem;
+
+    text-align: left;
+    font-size: 1rem;
+
+    opacity: 0.5;
+  }
+
+  &--completed {
+    text-decoration: line-through;
+    opacity: 0.55;
+  }
+
+  &--blocked {
+    text-decoration: underline;
+    color: var(--color-purple);
+  }
 }
 
 .new-task-btn {
   width: 100%;
   height: 4rem;
+
   font-size: 2rem;
   font-weight: 700;
-  background-color: transparent;
+
   border: 2px dashed var(--color-dark-blue);
-  color: var(--color-light-blue);
   border-radius: 4px;
   margin-top: 2rem;
+
+  color: var(--color-light-blue);
+  background-color: transparent;
 
   transition: all 0.2s;
 
@@ -200,11 +227,9 @@
   }
 }
 
-.ellipsis {
+.ellipsis-btn {
   &__container {
-    position: absolute;
-    top: 0;
-    right: 0;
+    @include absPositionRightZero;
 
     display: flex;
     flex-direction: column;
@@ -218,9 +243,10 @@
     padding-left: 0.5rem;
 
     transition: all 0.2s;
+
     cursor: pointer;
 
-    &:hover > .ellipsis__dot {
+    &:hover > .ellipsis-btn__dot {
       background-color: var(--color-light-blue);
     }
   }
@@ -228,10 +254,11 @@
   &__dot {
     height: 5px;
     width: 5px;
-    border-radius: 50%;
 
+    border-radius: 50%;
     padding: 0.25rem;
     margin-top: 0.25rem;
+
     background-color: var(--color-dark);
 
     pointer-events: none;
@@ -248,39 +275,41 @@
 
   min-height: 12rem;
   width: 10rem;
-  background-color: var(--color-light-blue);
 
   box-shadow: 4px 4px 2px 0px rgba(0, 0, 0, 0.75);
   outline: none;
 
+  background-color: var(--color-light-blue);
+
   &__item {
-    color: #ffffff;
-    background-color: var(--color-darkest);
     border-bottom: 2px solid var(--color-light-grey);
 
     font-size: 1.5rem;
     font-weight: 700;
 
+    color: #ffffff;
+    background-color: var(--color-darkest);
+
     cursor: pointer;
 
     &--high {
       &:hover {
-        color: #ea4c46;
-        border-bottom: 2px solid #ea4c46;
+        color: var(--color-hard-red);
+        border-bottom: 2px solid var(--color-hard-red);
       }
     }
 
     &--medium {
       &:hover {
-        color: #fd7f2c;
-        border-bottom: 2px solid #fd7f2c;
+        color: var(--color-hard-orange);
+        border-bottom: 2px solid var(--color-hard-orange);
       }
     }
 
     &--low {
       &:hover {
-        color: #57c84d;
-        border-bottom: 2px solid #57c84d;
+        color: var(--color-hard-green);
+        border-bottom: 2px solid var(--color-hard-green);
       }
     }
   }
@@ -295,10 +324,11 @@
   grid-template-columns: 1fr;
 
   width: 16rem;
-  background-color: var(--color-darkest);
 
   box-shadow: 4px 4px 2px 0px rgba(0, 0, 0, 0.75);
   outline: none;
+
+  background-color: var(--color-darkest);
 
   &__container {
     display: flex;
@@ -311,10 +341,10 @@
 
     &--complete {
       &:hover {
-        border-bottom: 3px solid #57c84d;
+        border-bottom: 3px solid var(--color-hard-green);
 
         & > button {
-          color: #57c84d;
+          color: var(--color-hard-green);
         }
       }
     }
@@ -331,10 +361,10 @@
 
     &--delete {
       &:hover {
-        border-bottom: 3px solid #ea4c46;
+        border-bottom: 3px solid var(--color-hard-red);
 
         & > button {
-          color: #ea4c46;
+          color: var(--color-hard-red);
         }
       }
     }
@@ -353,21 +383,21 @@
   &__item {
     height: 5rem;
 
-    color: #ffffff;
-    background-color: var(--color-darkest);
-
     font-size: 1.5rem;
     font-weight: 700;
+
+    color: #ffffff;
+    background-color: var(--color-darkest);
 
     pointer-events: none;
   }
 
   &__icon-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    @include flexCentering;
 
     width: 20%;
+
+    pointer-events: none;
   }
 
   &__icon {

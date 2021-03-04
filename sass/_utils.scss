@@ -1,7 +1,19 @@
-@keyframes rotateOutline {
-  50% {
-    outline: 2px dashed var(--color-dark-blue);
-  }
+@mixin flexCentering {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin absPositionLeftZero {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+@mixin absPositionRightZero {
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 
 .hidden {
