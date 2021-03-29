@@ -34,6 +34,7 @@
 
   min-height: 100vh;
   min-width: 100%;
+  width: 100%;
 
   padding-top: 12rem;
   padding-left: 2rem;
@@ -53,6 +54,7 @@
     height: 100%;
 
     background-image: url(../img/email-pattern.png);
+    background-repeat: repeat;
     opacity: 0.15;
   }
 }

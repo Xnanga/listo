@@ -9,7 +9,10 @@ const focusOverlay = document.querySelector(".focus-overlay");
 // DOM Elements
 const newTaskListBtn = document.querySelector(".new-task-list-btn");
 const priorityMenu = document.querySelector(".priority-menu");
-const taskMenu = document.querySelector(".task-menu");
+
+const taskMenu = document.querySelector(".task-menu--default");
+const taskMenuCompletedState = document.querySelector(".task-menu--completed");
+const taskMenuBlockedState = document.querySelector(".task-menu--blocked");
 
 // Classes
 class Task {
@@ -42,6 +45,7 @@ class UI {
 
   constructor() {}
 
+  // Switches visibility of task text and input on click
   _toggleTaskTextInput(task) {
     const newTaskText = task.querySelector(".task-card__text");
     const newTaskTextInput = task.querySelector(".task-card__text-area");
@@ -54,6 +58,7 @@ class UI {
     }
   }
 
+  // Switches visibility of taskList text and input on click
   _toggleTaskListTextInput(taskList) {
     const newTaskListText = taskList.querySelector(
       ".task-list__topbar__heading"
@@ -70,6 +75,7 @@ class UI {
     }
   }
 
+  // Creates a new taskList element
   _displayNewTaskList(taskList) {
     //prettier-ignore
     const html = `
@@ -95,6 +101,7 @@ class UI {
     return newestList;
   }
 
+  // Creates a new empty task with no text
   _displayEmptyTask(taskList) {
     const taskListContainer = taskList.querySelector(
       ".task-list__task-container"
@@ -116,6 +123,7 @@ class UI {
     return taskListContainer.insertAdjacentHTML("beforeend", html);
   }
 
+  // Displays a task which contains text and other values
   _displayNewTask(el, task) {
     let html;
 
@@ -135,6 +143,7 @@ class UI {
       </div>
       `;
 
+      // Insert the task into the closest taskList
       el.querySelector(".task-list__task-container").insertAdjacentHTML(
         "beforeend",
         html
@@ -168,15 +177,20 @@ class UI {
       }
     }
 
+    // Update allTasks nodelist and return latest task created
     const allTasks = el.querySelectorAll(".task-card");
     return allTasks[allTasks.length - 1];
   }
 
+  // Change task classes based on current status
   switchTaskStatus(newStatus) {
     const activeTask = app.activeTaskHTML;
-    console.log(activeTask);
 
     activeTask.classList = "";
+
+    if (newStatus === "due") {
+      activeTask.classList.add("task-card");
+    }
 
     if (newStatus === "completed") {
       activeTask.classList.add("task-card");
@@ -193,6 +207,7 @@ class UI {
     }
   }
 
+  // Add new text into an existing task
   _populateTextContent(task) {
     const taskHTML = taskBoard.querySelector(
       `.task-card[data-id="${task.id}"]`
@@ -202,6 +217,7 @@ class UI {
     taskHTML.querySelector(".task-card__text-area").value = task.textContent;
   }
 
+  // Add new text into an existing taskList
   _populateTaskListContent(taskList) {
     const taskListHTML = taskBoard.querySelector(
       `.task-list[data-id="${taskList.id}"]`
@@ -229,7 +245,21 @@ class UI {
   }
 
   _displayTaskMenu(e) {
+    const targetTask = e.target.closest(".task-card");
     this.taskMenuOpen = true;
+
+    if (targetTask.classList.contains("task-card--completed")) {
+      this._moveElementToCursor(e, taskMenuCompletedState);
+      taskMenuCompletedState.classList.remove("hidden");
+      return;
+    }
+
+    if (targetTask.classList.contains("task-card--blocked")) {
+      this._moveElementToCursor(e, taskMenuBlockedState);
+      taskMenuBlockedState.classList.remove("hidden");
+      return;
+    }
+
     this._moveElementToCursor(e, taskMenu);
     taskMenu.classList.remove("hidden");
   }
@@ -237,14 +267,18 @@ class UI {
   _removeTaskMenu() {
     this.taskMenuOpen = false;
     taskMenu.classList.add("hidden");
+    taskMenuBlockedState.classList.add("hidden");
+    taskMenuCompletedState.classList.add("hidden");
   }
 
+  // Displays a dark overlay except for focused task
   _displayFocusOverlay(el) {
     this.focusOverlayVisible = true;
     focusOverlay.classList.remove("hidden");
     if (el) el.style.zIndex = "20";
   }
 
+  // Removes the dark overlay
   _removeFocusOverlay(el) {
     this.focusOverlayVisible = false;
     focusOverlay.classList.add("hidden");
@@ -253,6 +287,7 @@ class UI {
     }
   }
 
+  // Switches the colour of a task priority strip
   _changeTaskPriorityStrip(priority) {
     const priorityStrip = app.activeTaskHTML.querySelector(
       ".task-card__priority-bar"
@@ -279,6 +314,7 @@ class UI {
     app._setLocalStorage();
   }
 
+  // Moves the scrollbar right when new task created
   _horizontalScroll() {
     taskBoard.scroll({
       left: 10000,
@@ -293,6 +329,10 @@ class UI {
     el.style.position = "absolute";
     el.style.top = `${mouseY}px`;
     el.style.left = `${mouseX}px`;
+  }
+
+  _removeTask(task) {
+    task.outerHTML = "";
   }
 }
 
@@ -318,6 +358,7 @@ class App {
     this._attachEventListeners();
   }
 
+  // Creates a new taskList object and handles state
   newTaskList() {
     const newTaskList = new TaskList();
     this.allTaskLists.push(newTaskList);
@@ -330,6 +371,7 @@ class App {
     this._setLocalStorage();
   }
 
+  // Creates a new task object and handles state
   newTask(e) {
     let newTaskElement;
     const target = e.target;
@@ -373,11 +415,13 @@ class App {
     this._setLocalStorage();
   }
 
+  // Sets a task as active in state
   _setActiveTask(target) {
     let taskObject;
     let taskHTML;
   }
 
+  // Sets a taskList as active in state
   _setActiveTaskList(data) {
     let taskListObject;
     let taskListHTML;
@@ -408,6 +452,7 @@ class App {
     }
   }
 
+  // Gets edited task and sends for text processing
   editTaskTextContent(task) {
     const currentTask = this.allTasks.find(
       (storedTask) => storedTask.id === task.dataset.id
@@ -417,6 +462,7 @@ class App {
     this._setLocalStorage();
   }
 
+  // Updates a taskList object's child task array
   _updateChildTaskList(taskList) {
     const taskListHTML = taskBoard.querySelector(
       `.task-list[data-id="${taskList.id}"]`
@@ -435,6 +481,7 @@ class App {
     document.addEventListener("click", this._documentClickHandler.bind(this));
   }
 
+  // Handles clicks globally
   _documentClickHandler(e) {
     console.log(e.target);
 
@@ -463,7 +510,7 @@ class App {
 
     // When Task Delete Button Clicked in Priority Menu
     if (e.target.classList.contains("task-menu__container--delete")) {
-      console.log("Delete Clicked");
+      this.deleteTask();
     }
 
     // When Task Due Date Button Clicked in Priority Menu
@@ -472,9 +519,8 @@ class App {
     }
   }
 
+  // Handles clicks inside the taskBoard
   _clickHandler(e) {
-    console.log(e.target);
-
     if (e.target.classList.contains("task-board")) {
       if (this.taskIsBeingEdited) {
         this._handleTaskEdit(e.target);
@@ -550,7 +596,7 @@ class App {
       ui._removeTaskMenu();
     }
 
-    if (!this.taskEditingEnabled) return;
+    // if (!this.taskEditingEnabled) return;
     this._handleNewTaskCreation(e);
   }
 
@@ -569,6 +615,7 @@ class App {
     this._handleNewTaskCreation(e);
   }
 
+  // Update text content in edited task
   _processTaskTextInput(target) {
     const taskText = this.activeTaskHTML.querySelector(".task-card__text-area")
       .textContent;
@@ -579,6 +626,7 @@ class App {
     ui._populateTextContent(this.activeTaskObj);
   }
 
+  // Update text content in edited taskList
   _processTaskListTextInput(target) {
     const taskListText = this.activeTaskListHTML.querySelector(
       ".task-list__text-area"
@@ -590,18 +638,21 @@ class App {
     ui._populateTaskListContent(this.activeTaskListObj);
   }
 
+  // Toggle state for task editing
   _toggleTaskEditing() {
     this.taskEditingEnabled = !this.taskEditingEnabled;
     this.taskIsBeingEdited = !this.taskIsBeingEdited;
     this.taskIsFinishedEditing = !this.taskIsFinishedEditing;
   }
 
+  // Toggle state for taskList editing
   _toggleTaskListEditing() {
     this.taskListEditingEnabled = !this.taskListEditingEnabled;
     this.taskListIsBeingEdited = !this.taskListIsBeingEdited;
     this.taskListIsFinishedEditing = !this.taskListIsFinishedEditing;
   }
 
+  // Gets the associated object from a task or taskList node
   _getNodeObj(node) {
     if (node.classList.contains("task-card")) {
       const obj = this.allTasks.find((task) => task.id === node.dataset.id);
@@ -618,15 +669,18 @@ class App {
     }
   }
 
+  // Adds an id value to the task element from its object
   _manageTaskId(task) {
     task.dataset.id = this.activeTaskObj.id;
   }
 
+  // Set a task element as being edited
   _manageTaskEdited(task) {
     task.dataset.edited = "true";
     task.classList.add("new-task--populated");
   }
 
+  // Remove task element HTML and state
   _undoTaskCreation(target) {
     const removedTaskId = target.getAttribute("data-id");
     const removedTaskHTML = document.querySelector(
@@ -637,6 +691,7 @@ class App {
     this.allTasks.pop();
   }
 
+  // Higher order function for handling new task text edits
   _handleTaskEdit(target) {
     this._toggleTaskEditing();
     this._processTaskTextInput();
@@ -644,6 +699,7 @@ class App {
     this._setLocalStorage();
   }
 
+  // Higher order function for handling existing task text edits
   _handleExistingTaskEdit(target) {
     this.activeTaskHTML = target;
     this.activeTaskObj = this._getNodeObj(target);
@@ -654,6 +710,7 @@ class App {
     this._setLocalStorage();
   }
 
+  // Higher order function for handling new taskList text edits
   _handleTaskListEdit() {
     this._toggleTaskListEditing();
     this._processTaskListTextInput();
@@ -661,11 +718,13 @@ class App {
     this._setLocalStorage();
   }
 
+  // Create new task or taskList based on clicked element
   _handleNewTaskCreation(e) {
     if (e.target.classList.contains("new-task-btn")) this.newTask(e);
     if (e.target.classList.contains("new-task-list-btn")) this.newTaskList(e);
   }
 
+  // Call UI object based on priority strip class
   _handleTaskPriorityChange(e) {
     if (e.target.classList.contains("priority-menu__item--high")) {
       ui._changeTaskPriorityStrip("high");
@@ -680,30 +739,55 @@ class App {
     }
   }
 
+  // Set task as complete
   completeTask() {
     this.activeTaskObj.status = "completed";
     ui.switchTaskStatus("completed");
     this._setLocalStorage();
+    ui._removeTaskMenu();
   }
 
+  // Toggle task blocked
   setBlockedTask() {
-    this.activeTaskObj.status = "blocked";
-    ui.switchTaskStatus("blocked");
+    this._setLocalStorage();
+    ui._removeTaskMenu();
+
+    if (this.activeTaskObj.status === "blocked") {
+      this.activeTaskObj.status = "due";
+      ui.switchTaskStatus("due");
+      console.log("Task Set to Due");
+      return;
+    }
+
+    if (this.activeTaskObj.status !== "blocked") {
+      this.activeTaskObj.status = "blocked";
+      ui.switchTaskStatus("blocked");
+      console.log("Task Set to Blocked");
+      return;
+    }
+  }
+
+  // Delete task
+  deleteTask() {
+    this.allTasks.splice(this.allTasks.indexOf(this.activeTaskObj), 1);
+    ui._removeTask(this.activeTaskHTML);
+    ui._removeTaskMenu();
     this._setLocalStorage();
   }
 
-  deleteTask() {
-    // Some Code
-  }
-
+  // Set task due date
   setDueDateForTask() {
     // Some Code
+    this._setLocalStorage();
+    ui._removeTaskMenu();
   }
 
+  // Add all taskLists in state to the UI
   _renderAllTaskLists() {
     this.allTaskLists.forEach((taskList) => ui._displayNewTaskList(taskList));
   }
 
+  // Add all tasks in state to the UI
   _renderAllTasks() {
     for (let i = 0; i < this.allTasks.length; i++) {
       const currentTask = this.allTasks[i];
@@ -715,11 +799,13 @@ class App {
     }
   }
 
+  // Add all taskList and task data to local storage
   _setLocalStorage() {
     localStorage.setItem("taskLists", JSON.stringify(this.allTaskLists));
     localStorage.setItem("tasks", JSON.stringify(this.allTasks));
   }
 
+  // Retrieve all data from local storage
   _getLocalStorage() {
     const taskListData = JSON.parse(localStorage.getItem("taskLists"));
     const taskData = JSON.parse(localStorage.getItem("tasks"));
@@ -741,6 +827,7 @@ const app = new App();
 const ui = new UI();
 app._getLocalStorage();
 
+// Temporary way to clear local storage
 document.addEventListener("keypress", function (e) {
   if (e.code === "KeyL") {
     localStorage.clear();
