@@ -14,6 +14,8 @@ const taskMenu = document.querySelector(".task-menu--default");
 const taskMenuCompletedState = document.querySelector(".task-menu--completed");
 const taskMenuBlockedState = document.querySelector(".task-menu--blocked");
 
+const taskListMenu = document.querySelector(".tasklist-menu");
+
 // Classes
 class Task {
   id = (Date.now() + "").slice(-10);
@@ -41,6 +43,7 @@ class TaskList {
 class UI {
   priorityMenuOpen = false;
   taskMenuOpen = false;
+  taskListMenuOpen = false;
   focusOverlayVisible = false;
 
   constructor() {}
@@ -83,7 +86,7 @@ class UI {
     <div class="task-list__topbar">
       <h2 class="task-list__topbar__heading">${taskList.textContent || "New Task List"}</h2>
       <div class="task-list__text-area hidden" contenteditable="true">${taskList.textContent || "New Task List"}</div>
-      <div class="ellipsis-btn__container">
+      <div class="ellipsis-btn__container tasklist-ellipsis">
         <div class="ellipsis-btn__dot"></div>
         <div class="ellipsis-btn__dot"></div>
         <div class="ellipsis-btn__dot"></div>
@@ -111,7 +114,7 @@ class UI {
       <span class="task-card__text"></span>
       <div class="task-card__text-area hidden" contenteditable="true"></div>
       <div class="task-card__priority-bar"></div>
-      <div class="ellipsis-btn__container">
+      <div class="ellipsis-btn__container task-ellipsis">
         <div class="ellipsis-btn__dot"></div>
         <div class="ellipsis-btn__dot"></div>
         <div class="ellipsis-btn__dot"></div>
@@ -134,7 +137,7 @@ class UI {
         <span class="task-card__text">${task.textContent}</span>
         <div class="task-card__text-area hidden" contenteditable="true">${task.textContent}</div>
         <div class="task-card__priority-bar task-card__priority-bar--${task.priority}"></div>
-        <div class="ellipsis-btn__container">
+        <div class="ellipsis-btn__container task-ellipsis">
           <div class="ellipsis-btn__dot"></div>
           <div class="ellipsis-btn__dot"></div>
           <div class="ellipsis-btn__dot"></div>
@@ -155,7 +158,7 @@ class UI {
         <span class="task-card__text">Add New Task</span>
         <div class="task-card__text-area hidden" contenteditable="true">${task.textContent}</div>
         <div class="task-card__priority-bar task-card__priority-bar--${task.priority}"></div>
-        <div class="ellipsis-btn__container">
+        <div class="ellipsis-btn__container task-ellipsis">
           <div class="ellipsis-btn__dot"></div>
           <div class="ellipsis-btn__dot"></div>
           <div class="ellipsis-btn__dot"></div>
@@ -271,6 +274,18 @@ class UI {
     taskMenuCompletedState.classList.add("hidden");
   }
 
+  _displayTaskListMenu(e) {
+    const targetTaskList = e.target.closest(".task-list");
+    this.taskListMenuOpen = true;
+    this._moveElementToCursor(e, taskListMenu);
+    taskListMenu.classList.remove("hidden");
+  }
+
+  _removeTaskListMenu() {
+    this.taskListMenuOpen = false;
+    taskListMenu.classList.add("hidden");
+  }
+
   // Displays a dark overlay except for focused task
   _displayFocusOverlay(el) {
     this.focusOverlayVisible = true;
@@ -333,6 +348,10 @@ class UI {
 
   _removeTask(task) {
     task.outerHTML = "";
+  }
+
+  _removeTaskList(taskList) {
+    taskList.outerHTML = "";
   }
 }
 
@@ -509,13 +528,18 @@ class App {
     }
 
     // When Task Delete Button Clicked in Priority Menu
-    if (e.target.classList.contains("task-menu__container--delete")) {
+    if (e.target.classList.contains("task-delete-btn")) {
       this.deleteTask();
     }
 
     // When Task Due Date Button Clicked in Priority Menu
     if (e.target.classList.contains("task-menu__container--date")) {
       console.log("Date Clicked");
+    }
+
+    // When Tasklist Delete Button Clicked in Priority Menu
+    if (e.target.classList.contains("tasklist-delete-btn")) {
+      this.deleteTaskList();
     }
   }
 
@@ -562,21 +586,30 @@ class App {
     }
 
     if (e.target.classList.contains("ellipsis-btn__container")) {
-      // Needs Seperated Between Task and Tasklist ellipsis-btn
-
       if (ui.focusOverlayVisible) return;
 
-      if (e.target.closest(".task-card")) {
-        ui._displayTaskMenu(e);
+      // Task ellipsis button clicked
+      if (e.target.classList.contains("task-ellipsis")) {
+        if (e.target.closest(".task-card")) {
+          ui._displayTaskMenu(e);
 
-        this.activeTaskHTML = e.target.closest(".task-card");
-        this.activeTaskObj = this.allTasks.find(
-          (task) => task.id === this.activeTaskHTML.dataset.id
-        );
+          this.activeTaskHTML = e.target.closest(".task-card");
+          this.activeTaskObj = this.allTasks.find(
+            (task) => task.id === this.activeTaskHTML.dataset.id
+          );
+        }
       }
 
-      if (e.target.closest(".task-list")) {
-        console.log("Task List Ellipsis Click");
+      // Tasklist ellipsis button clicked
+      if (e.target.classList.contains("tasklist-ellipsis")) {
+        if (e.target.closest(".task-list")) {
+          ui._displayTaskListMenu(e);
+
+          this.activeTaskListHTML = e.target.closest(".task-list");
+          this.activeTaskListObj = this.allTaskLists.find(
+            (taskList) => taskList.id === this.activeTaskListHTML.dataset.id
+          );
+        }
       }
     }
 
@@ -590,10 +623,19 @@ class App {
 
     if (
       !e.target.classList.contains("task-menu") &&
-      !e.target.classList.contains("ellipsis-btn__container") &&
+      !e.target.classList.contains("task-ellipsis") &&
       ui.taskMenuOpen
     ) {
       ui._removeTaskMenu();
+    }
+
+    if (
+      !e.target.classList.contains("tasklist-menu") &&
+      !e.target.classList.contains("tasklist-ellipsis") &&
+      ui.taskListMenuOpen
+    ) {
+      console.log("Task List Menu Removed");
+      ui._removeTaskListMenu();
     }
 
     // if (!this.taskEditingEnabled) return;
@@ -741,10 +783,22 @@ class App {
 
   // Set task as complete
   completeTask() {
-    this.activeTaskObj.status = "completed";
-    ui.switchTaskStatus("completed");
     this._setLocalStorage();
     ui._removeTaskMenu();
+
+    if (this.activeTaskObj.status === "completed") {
+      this.activeTaskObj.status = "due";
+      ui.switchTaskStatus("due");
+      console.log("Task Set to Due");
+      return;
+    }
+
+    if (this.activeTaskObj.status !== "completed") {
+      this.activeTaskObj.status = "completed";
+      ui.switchTaskStatus("completed");
+      console.log("Task Set to completed");
+      return;
+    }
   }
 
   // Toggle task blocked
@@ -775,11 +829,34 @@ class App {
     this._setLocalStorage();
   }
 
+  // Delete all tasks in list
+  deleteAllTasksInList(taskList) {
+    const childTaskArr = taskList.childTasks;
+
+    childTaskArr.forEach((taskId) => {
+      this.allTasks.splice(this.allTasks.indexOf(taskId), 1);
+    });
+
+    this._setLocalStorage();
+  }
+
   // Set task due date
   setDueDateForTask() {
     // Some Code
     this._setLocalStorage();
     ui._removeTaskMenu();
+  }
+
+  // Delete tasklist
+  deleteTaskList() {
+    this.deleteAllTasksInList(this.activeTaskListObj);
+    this.allTaskLists.splice(
+      this.allTaskLists.indexOf(this.activeTaskListObj),
+      1
+    );
+    ui._removeTaskList(this.activeTaskListHTML);
+    ui._removeTaskListMenu();
+    this._setLocalStorage();
   }
 
   // Add all taskLists in state to the UI
