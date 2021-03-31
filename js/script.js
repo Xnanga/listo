@@ -19,11 +19,11 @@ const taskListMenu = document.querySelector(".tasklist-menu");
 // Classes
 class Task {
   id = (Date.now() + "").slice(-10);
+  dueDate;
   parentTaskList;
   priority = "none";
   status = "due";
   statusText = "No Due Date Set";
-  dueDate;
 
   constructor(textContent, id) {
     this.textContent = "Add New Task";
@@ -130,6 +130,7 @@ class UI {
   _displayNewTask(el, task) {
     let html;
 
+    // Create populated task if localStorage data provided
     if (task) {
       //prettier-ignore
       html = `
@@ -151,6 +152,8 @@ class UI {
         "beforeend",
         html
       );
+
+      // If no localStorage data, create empty task
     } else {
       //prettier-ignore
       html = `
@@ -192,17 +195,17 @@ class UI {
     activeTask.classList = "";
 
     if (newStatus === "due") {
-      activeTask.classList.add("task-card");
+      this._toggleStyleClass(activeTask, "task-card", "add");
     }
 
     if (newStatus === "completed") {
-      activeTask.classList.add("task-card");
-      activeTask.classList.add("task-card--completed");
+      this._toggleStyleClass(activeTask, "task-card", "add");
+      this._toggleStyleClass(activeTask, "task-card--completed", "add");
     }
 
     if (newStatus === "blocked") {
-      activeTask.classList.add("task-card");
-      activeTask.classList.add("task-card--blocked");
+      this._toggleStyleClass(activeTask, "task-card", "add");
+      this._toggleStyleClass(activeTask, "task-card--blocked", "add");
     }
 
     if (newStatus === "delete") {
@@ -226,9 +229,7 @@ class UI {
       `.task-list[data-id="${taskList.id}"]`
     );
 
-    if (!taskList.textContent) {
-      taskList.textContent = "New Task List";
-    }
+    if (!taskList.textContent) taskList.textContent = "New Task List";
 
     taskListHTML.querySelector(".task-list__topbar__heading").textContent =
       taskList.textContent;
@@ -239,12 +240,12 @@ class UI {
   _displayPriorityMenu(e) {
     this.priorityMenuOpen = true;
     this._moveElementToCursor(e, priorityMenu);
-    priorityMenu.classList.remove("hidden");
+    this._toggleStyleClass(priorityMenu, "hidden", "remove");
   }
 
   _removePriorityMenu() {
     this.priorityMenuOpen = false;
-    priorityMenu.classList.add("hidden");
+    this._toggleStyleClass(priorityMenu, "hidden", "add");
   }
 
   _displayTaskMenu(e) {
@@ -253,52 +254,62 @@ class UI {
 
     if (targetTask.classList.contains("task-card--completed")) {
       this._moveElementToCursor(e, taskMenuCompletedState);
-      taskMenuCompletedState.classList.remove("hidden");
+      this._toggleStyleClass(taskMenuCompletedState, "hidden", "remove");
       return;
     }
 
     if (targetTask.classList.contains("task-card--blocked")) {
       this._moveElementToCursor(e, taskMenuBlockedState);
-      taskMenuBlockedState.classList.remove("hidden");
+      this._toggleStyleClass(taskMenuBlockedState, "hidden", "remove");
       return;
     }
 
     this._moveElementToCursor(e, taskMenu);
-    taskMenu.classList.remove("hidden");
+    this._toggleStyleClass(taskMenu, "hidden", "remove");
   }
 
   _removeTaskMenu() {
     this.taskMenuOpen = false;
-    taskMenu.classList.add("hidden");
-    taskMenuBlockedState.classList.add("hidden");
-    taskMenuCompletedState.classList.add("hidden");
+    this._toggleStyleClass(taskMenu, "hidden", "add");
+    this._toggleStyleClass(taskMenuBlockedState, "hidden", "add");
+    this._toggleStyleClass(taskMenuCompletedState, "hidden", "add");
   }
 
   _displayTaskListMenu(e) {
     const targetTaskList = e.target.closest(".task-list");
     this.taskListMenuOpen = true;
     this._moveElementToCursor(e, taskListMenu);
-    taskListMenu.classList.remove("hidden");
+    this._toggleStyleClass(taskListMenu, "hidden", "remove");
   }
 
   _removeTaskListMenu() {
     this.taskListMenuOpen = false;
-    taskListMenu.classList.add("hidden");
+    this._toggleStyleClass(taskListMenu, "hidden", "add");
   }
 
   // Displays a dark overlay except for focused task
   _displayFocusOverlay(el) {
     this.focusOverlayVisible = true;
-    focusOverlay.classList.remove("hidden");
+    this._toggleStyleClass(focusOverlay, "hidden", "remove");
     if (el) el.style.zIndex = "20";
   }
 
   // Removes the dark overlay
   _removeFocusOverlay(el) {
     this.focusOverlayVisible = false;
-    focusOverlay.classList.add("hidden");
+    this._toggleStyleClass(focusOverlay, "hidden", "add");
     if (el) {
       el.style.zIndex = "5";
+    }
+  }
+
+  _toggleStyleClass(el, cssClass, action) {
+    if (action === "add") {
+      el.classList.add(`${cssClass}`);
+      return el;
+    } else if (action === "remove") {
+      el.classList.remove(`${cssClass}`);
+      return el;
     }
   }
 
@@ -309,20 +320,24 @@ class UI {
     );
 
     priorityStrip.className = "";
-    priorityStrip.classList.add("task-card__priority-bar");
+    // priorityStrip.classList.add("task-card__priority-bar");
+    this._toggleStyleClass(priorityStrip, "task-card__priority-bar", "add");
 
     switch (priority) {
       case "high":
         app.activeTaskObj.priority = "high";
-        priorityStrip.classList.add("task-card__priority-bar--high");
+        //prettier-ignore
+        this._toggleStyleClass(priorityStrip, "task-card__priority-bar--high", "add");
         break;
       case "medium":
         app.activeTaskObj.priority = "medium";
-        priorityStrip.classList.add("task-card__priority-bar--medium");
+        //prettier-ignore
+        this._toggleStyleClass(priorityStrip, "task-card__priority-bar--medium", "add");
         break;
       case "low":
         app.activeTaskObj.priority = "low";
-        priorityStrip.classList.add("task-card__priority-bar--low");
+        //prettier-ignore
+        this._toggleStyleClass(priorityStrip, "task-card__priority-bar--low", "add");
     }
 
     this._removePriorityMenu();
@@ -476,8 +491,9 @@ class App {
     const currentTask = this.allTasks.find(
       (storedTask) => storedTask.id === task.dataset.id
     );
+    console.log(task);
+    console.log(currentTask);
     this._processTaskTextInput(task);
-
     this._setLocalStorage();
   }
 
@@ -545,7 +561,12 @@ class App {
 
   // Handles clicks inside the taskBoard
   _clickHandler(e) {
-    if (e.target.classList.contains("task-board")) {
+    // Change this later so any click outside the active task is counted
+    // Change this later so any click outside the active taskList text area is counted
+    if (
+      e.target.classList.contains("task-board") ||
+      e.target.classList.contains("task-list")
+    ) {
       if (this.taskIsBeingEdited) {
         this._handleTaskEdit(e.target);
       }
@@ -663,6 +684,7 @@ class App {
       .textContent;
 
     this.activeTaskObj.textContent = taskText;
+    console.log(this.activeTaskObj);
 
     ui._toggleTaskTextInput(this.activeTaskHTML);
     ui._populateTextContent(this.activeTaskObj);
@@ -719,7 +741,8 @@ class App {
   // Set a task element as being edited
   _manageTaskEdited(task) {
     task.dataset.edited = "true";
-    task.classList.add("new-task--populated");
+    // task.classList.add("new-task--populated");
+    ui._toggleStyleClass(task, "new-task--populated", "add");
   }
 
   // Remove task element HTML and state
@@ -735,8 +758,10 @@ class App {
 
   // Higher order function for handling new task text edits
   _handleTaskEdit(target) {
+    console.log(target);
     this._toggleTaskEditing();
     this._processTaskTextInput();
+    console.log(target);
 
     this._setLocalStorage();
   }
@@ -834,7 +859,8 @@ class App {
     const childTaskArr = taskList.childTasks;
 
     childTaskArr.forEach((taskId) => {
-      this.allTasks.splice(this.allTasks.indexOf(taskId), 1);
+      const taskToDelete = this.allTasks.find((task) => task.id === taskId);
+      this.allTasks.splice(this.allTasks.indexOf(taskToDelete), 1);
     });
 
     this._setLocalStorage();
@@ -871,7 +897,6 @@ class App {
       const parentTasklist = taskBoard.querySelector(
         `.task-list[data-id="${currentTask.parentTaskList}"]`
       );
-
       ui._displayNewTask(parentTasklist, currentTask);
     }
   }
