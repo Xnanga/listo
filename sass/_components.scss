@@ -1,3 +1,76 @@
+.task-timeline {
+  height: 100%;
+  width: 100%;
+
+  padding: 0.75rem 1.1rem;
+
+  &__bar {
+    display: flex;
+
+    height: 100%;
+    width: 100%;
+
+    border-radius: 2rem;
+    border: 1px solid #000000;
+
+    overflow: hidden;
+
+    & :first-child {
+      margin-left: -0.2rem;
+    }
+  }
+
+  &__item {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    flex-grow: 1;
+
+    padding-left: 1.2rem;
+
+    background-color: var(--color-light-blue);
+    border-left: 1px solid #000000;
+
+    transform: skew(-20deg);
+
+    & > * {
+      transform: skew(20deg);
+    }
+
+    &:hover > span {
+      transform: skew(20deg) scale(1.025);
+    }
+
+    &::after {
+      content: "";
+      height: 100%;
+      width: 100%;
+
+      background: url(../img/stripe-pattern.jpg);
+      background-size: cover;
+
+      position: absolute;
+      top: 0;
+      left: 0;
+      opacity: 0.45;
+    }
+
+    &--blocked {
+      background-color: var(--color-purple);
+    }
+  }
+
+  &__item-text {
+    font-size: 1.25rem;
+    font-weight: 700;
+
+    color: #ffffff;
+
+    transform: skew(20deg);
+  }
+}
+
 .task-list {
   position: relative;
 
@@ -197,12 +270,24 @@
   &--completed {
     text-decoration: line-through;
     color: var(--color-hard-green);
+    border-bottom: 2px solid var(--color-hard-green);
     opacity: 0.55;
+
+    &::before {
+      @include cardStatusIconDefault;
+      content: url(../img/checkmark-task-card.svg);
+    }
   }
 
   &--blocked {
     text-decoration: underline;
     color: var(--color-purple);
+    border-bottom: 2px solid var(--color-purple);
+
+    &::before {
+      @include cardStatusIconDefault;
+      content: url(../img/stop-task-card.svg);
+    }
   }
 }
 

@@ -828,13 +828,13 @@ class App {
 
   // Toggle task blocked
   setBlockedTask() {
-    this._setLocalStorage();
-    ui._removeTaskMenu();
-
     if (this.activeTaskObj.status === "blocked") {
       this.activeTaskObj.status = "due";
       ui.switchTaskStatus("due");
       console.log("Task Set to Due");
+
+      this._setLocalStorage();
+      ui._removeTaskMenu();
       return;
     }
 
@@ -842,6 +842,9 @@ class App {
       this.activeTaskObj.status = "blocked";
       ui.switchTaskStatus("blocked");
       console.log("Task Set to Blocked");
+
+      this._setLocalStorage();
+      ui._removeTaskMenu();
       return;
     }
   }

@@ -65,6 +65,50 @@ a {
   color: inherit;
   text-decoration: none; }
 
+.task-timeline {
+  height: 100%;
+  width: 100%;
+  padding: 0.75rem 1.1rem; }
+  .task-timeline__bar {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    border-radius: 2rem;
+    border: 1px solid #000000;
+    overflow: hidden; }
+    .task-timeline__bar :first-child {
+      margin-left: -0.2rem; }
+  .task-timeline__item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    padding-left: 1.2rem;
+    background-color: var(--color-light-blue);
+    border-left: 1px solid #000000;
+    transform: skew(-20deg); }
+    .task-timeline__item > * {
+      transform: skew(20deg); }
+    .task-timeline__item:hover > span {
+      transform: skew(20deg) scale(1.025); }
+    .task-timeline__item::after {
+      content: "";
+      height: 100%;
+      width: 100%;
+      background: url(../img/stripe-pattern.jpg);
+      background-size: cover;
+      position: absolute;
+      top: 0;
+      left: 0;
+      opacity: 0.45; }
+    .task-timeline__item--blocked {
+      background-color: var(--color-purple); }
+  .task-timeline__item-text {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ffffff;
+    transform: skew(20deg); }
+
 .task-list {
   position: relative;
   display: flex;
@@ -195,10 +239,32 @@ a {
   .task-card--completed {
     text-decoration: line-through;
     color: var(--color-hard-green);
+    border-bottom: 2px solid var(--color-hard-green);
     opacity: 0.55; }
+    .task-card--completed::before {
+      height: 0.5rem;
+      width: 0.5rem;
+      padding-right: 1.5rem;
+      padding-bottom: 1.5rem;
+      position: absolute;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      opacity: 0.75;
+      content: url(../img/checkmark-task-card.svg); }
   .task-card--blocked {
     text-decoration: underline;
-    color: var(--color-purple); }
+    color: var(--color-purple);
+    border-bottom: 2px solid var(--color-purple); }
+    .task-card--blocked::before {
+      height: 0.5rem;
+      width: 0.5rem;
+      padding-right: 1.5rem;
+      padding-bottom: 1.5rem;
+      position: absolute;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      opacity: 0.75;
+      content: url(../img/stop-task-card.svg); }
 
 .new-task-btn {
   width: 100%;
@@ -342,6 +408,7 @@ a {
   z-index: 40;
   height: 5rem;
   width: 100%;
+  border-bottom: 1px solid #000000;
   background-color: rgba(255, 255, 255, 0.5); }
 
 .utility-bar {
@@ -351,6 +418,7 @@ a {
   z-index: 40;
   height: 5rem;
   width: 100%;
+  border-bottom: 2px solid #000000;
   background-color: rgba(255, 255, 255, 0.2); }
 
 .task-board {
