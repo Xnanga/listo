@@ -1,7 +1,8 @@
 "use: strict";
 
 // Imports
-import datepicker from "/node_modules/js-datepicker/src/datepicker.js";
+// import datepicker from "/node_modules/js-datepicker/src/datepicker.js";
+import datepicker from "./vendor-modules/datepicker.js";
 
 // Layout elements
 const navBar = document.querySelector(".nav-bar");
