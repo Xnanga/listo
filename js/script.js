@@ -1,5 +1,8 @@
 "use: strict";
 
+// Imports
+import datepicker from "/node_modules/js-datepicker/src/datepicker.js";
+
 // Layout elements
 const navBar = document.querySelector(".nav-bar");
 const utilityBar = document.querySelector(".utility-bar");
@@ -9,21 +12,21 @@ const focusOverlay = document.querySelector(".focus-overlay");
 // DOM Elements
 const newTaskListBtn = document.querySelector(".new-task-list-btn");
 const priorityMenu = document.querySelector(".priority-menu");
-
 const taskMenu = document.querySelector(".task-menu--default");
 const taskMenuCompletedState = document.querySelector(".task-menu--completed");
 const taskMenuBlockedState = document.querySelector(".task-menu--blocked");
-
 const taskListMenu = document.querySelector(".tasklist-menu");
+const taskTimelineBar = document.querySelector(".task-timeline__bar");
 
 // Classes
 class Task {
   id = (Date.now() + "").slice(-10);
   dueDate;
+  dueDateMilliseconds;
   parentTaskList;
   priority = "none";
   status = "due";
-  statusText = "No Due Date Set";
+  statusText;
 
   constructor(textContent, id) {
     this.textContent = "Add New Task";
@@ -119,7 +122,7 @@ class UI {
         <div class="ellipsis-btn__dot"></div>
         <div class="ellipsis-btn__dot"></div>
       </div>
-      <div class="task-card__status">No Due Date Set</div>
+      <div class="task-card__status"></div>
     </div>
     `;
 
@@ -143,7 +146,7 @@ class UI {
           <div class="ellipsis-btn__dot"></div>
           <div class="ellipsis-btn__dot"></div>
         </div>
-        <div class="task-card__status">${task.statusText}</div>
+        <div class="task-card__status task-card__status--bolded">${task.statusText ? task.statusText : ""}</div>
       </div>
       `;
 
@@ -166,7 +169,7 @@ class UI {
           <div class="ellipsis-btn__dot"></div>
           <div class="ellipsis-btn__dot"></div>
         </div>
-        <div class="task-card__status">${task.statusText}</div>
+        <div class="task-card__status"></div>
       </div>
       `;
 
@@ -344,6 +347,25 @@ class UI {
     app._setLocalStorage();
   }
 
+  _updateTaskStatusText(text, statusLocation) {
+    statusLocation.textContent = text;
+    statusLocation.style.fontWeight = "700";
+  }
+
+  _updateTaskTimeline(allDueTasks) {
+    taskTimelineBar.innerHTML = "";
+
+    allDueTasks.forEach((dueTask) => {
+      const timelineItemHTML = `<div class="task-timeline__item">
+      <span class="task-timeline__item-text">
+        ${dueTask.dueDate} | ${dueTask.textContent}
+      </span>
+    </div>`;
+
+      taskTimelineBar.insertAdjacentHTML("beforeend", timelineItemHTML);
+    });
+  }
+
   // Moves the scrollbar right when new task created
   _horizontalScroll() {
     taskBoard.scroll({
@@ -371,8 +393,11 @@ class UI {
 }
 
 class App {
+  currentDate = new Date();
+
   allTaskLists = [];
   allTasks = [];
+  allDueTasks = new Set();
 
   taskEditingEnabled = true;
   taskIsBeingEdited = false;
@@ -551,6 +576,7 @@ class App {
     // When Task Due Date Button Clicked in Priority Menu
     if (e.target.classList.contains("task-menu__container--date")) {
       console.log("Date Clicked");
+      this.setDueDateForTask(picker);
     }
 
     // When Tasklist Delete Button Clicked in Priority Menu
@@ -741,7 +767,6 @@ class App {
   // Set a task element as being edited
   _manageTaskEdited(task) {
     task.dataset.edited = "true";
-    // task.classList.add("new-task--populated");
     ui._toggleStyleClass(task, "new-task--populated", "add");
   }
 
@@ -806,6 +831,28 @@ class App {
     }
   }
 
+  _manageDueTasks() {
+    // Add all due tasks to set
+    this.allTasks.forEach((task) => {
+      if (task.dueDate) {
+        this.allDueTasks.add(task);
+      }
+    });
+
+    // Re-order all due tasks by closest date
+    if (this.allDueTasks) {
+      let arr = [...this.allDueTasks];
+      // const sortedArr = arr.sort(function(a,b){return a-b});
+      const sortedArr = arr.sort((a, b) =>
+        a.dueDateMilliseconds > b.dueDateMilliseconds ? 1 : -1
+      );
+      this.allDueTasks = new Set(sortedArr);
+    }
+
+    // Call UI to update timeline bar
+    ui._updateTaskTimeline(this.allDueTasks);
+  }
+
   // Set task as complete
   completeTask() {
     this._setLocalStorage();
@@ -814,6 +861,9 @@ class App {
     if (this.activeTaskObj.status === "completed") {
       this.activeTaskObj.status = "due";
       ui.switchTaskStatus("due");
+      // this.allDueTasks.add(this.activeTaskObj);
+      // this._manageDueTasks();
+      ui._updateTaskTimeline(this.allDueTasks);
       console.log("Task Set to Due");
       return;
     }
@@ -821,6 +871,9 @@ class App {
     if (this.activeTaskObj.status !== "completed") {
       this.activeTaskObj.status = "completed";
       ui.switchTaskStatus("completed");
+      // this.allDueTasks.delete(this.activeTaskObj);
+      // this._manageDueTasks();
+      ui._updateTaskTimeline(this.allDueTasks);
       console.log("Task Set to completed");
       return;
     }
@@ -852,6 +905,7 @@ class App {
   // Delete task
   deleteTask() {
     this.allTasks.splice(this.allTasks.indexOf(this.activeTaskObj), 1);
+    this.allDueTasks.delete(this.activeTaskObj);
     ui._removeTask(this.activeTaskHTML);
     ui._removeTaskMenu();
     this._setLocalStorage();
@@ -864,16 +918,60 @@ class App {
     childTaskArr.forEach((taskId) => {
       const taskToDelete = this.allTasks.find((task) => task.id === taskId);
       this.allTasks.splice(this.allTasks.indexOf(taskToDelete), 1);
+      this.allDueTasks.delete(taskToDelete);
+      ui._updateTaskTimeline(this.allDueTasks);
+      console.log(taskToDelete);
     });
 
     this._setLocalStorage();
   }
 
   // Set task due date
-  setDueDateForTask() {
-    // Some Code
-    this._setLocalStorage();
-    ui._removeTaskMenu();
+  setDueDateForTask(instance, date) {
+    // Select Active Task
+    const activeTask = this.activeTaskObj;
+    const activeTaskHTML = this.activeTaskHTML;
+
+    // Create preferred date format
+    const unformattedDate = date;
+    const formattedDate = this._formatDate(date);
+
+    // Add date to dueDate property of task object
+    this.activeTaskObj.dueDate = unformattedDate;
+
+    // Update UI taskcard
+    activeTask.statusText = `Due on: ${formattedDate || "TBC"}`;
+    const activeTaskDueDateText = activeTaskHTML.querySelector(
+      ".task-card__status"
+    );
+    ui._updateTaskStatusText(activeTask.statusText, activeTaskDueDateText);
+
+    // Update UI timeline bar
+    ui._updateTaskTimeline(this.allDueTasks);
+
+    // Tasks to perform only when a date is available
+    if (date) {
+      ui._removeTaskMenu();
+      this.activeTaskObj.dueDateMilliseconds = unformattedDate.getTime();
+      this._manageDueTasks();
+      this._setLocalStorage();
+    }
+  }
+
+  // Formats date from datePicker
+  _formatDate(date) {
+    if (!date) return;
+    const daysOfWeekList = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    //prettier-ignore
+    const monthsOfYearList = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    const dayOfWeek = daysOfWeekList[date.getDay()];
+    const dayOfMonth = date.getDate();
+    const month = monthsOfYearList[date.getMonth()];
+    const year = date.getFullYear();
+
+    const formattedDate = `${dayOfWeek}, ${dayOfMonth} ${month}, ${year}`;
+    return formattedDate;
   }
 
   // Delete tasklist
@@ -920,11 +1018,13 @@ class App {
     this.allTaskLists = taskListData;
     this.allTasks = taskData;
 
-    // Add logic for iterating through all taskLists and rendering each in order
+    // Render all tasks and lists
     this._renderAllTaskLists();
-
-    // Add logic for iterating through all tasks and rendering each in their respective tasklists
     this._renderAllTasks();
+
+    // Render task timeline
+    this._manageDueTasks();
+    ui._updateTaskTimeline(this.allDueTasks);
   }
 }
 
@@ -939,3 +1039,12 @@ document.addEventListener("keypress", function (e) {
     console.log("LS Cleared");
   }
 });
+
+// Allows for choosing task due date with calendar
+const picker = datepicker(".task-menu__container--date", {
+  onSelect: (instance, date) => {
+    app.setDueDateForTask(instance, date);
+  },
+});
+
+console.log(app.allTasks);
