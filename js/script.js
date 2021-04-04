@@ -1,7 +1,5 @@
 "use: strict";
 
-// Imports
-// import datepicker from "/node_modules/js-datepicker/src/datepicker.js";
 import datepicker from "./vendor-modules/datepicker.js";
 
 // Layout elements
@@ -62,6 +60,7 @@ class UI {
 
     if (!newTaskTextInput.classList.contains("hidden")) {
       newTaskTextInput.focus();
+      this._displayFocusOverlay(task);
     }
   }
 
@@ -324,7 +323,6 @@ class UI {
     );
 
     priorityStrip.className = "";
-    // priorityStrip.classList.add("task-card__priority-bar");
     this._toggleStyleClass(priorityStrip, "task-card__priority-bar", "add");
 
     switch (priority) {
@@ -350,16 +348,17 @@ class UI {
 
   _updateTaskStatusText(text, statusLocation) {
     statusLocation.textContent = text;
-    statusLocation.style.fontWeight = "700";
   }
 
   _updateTaskTimeline(allDueTasks) {
     taskTimelineBar.innerHTML = "";
 
     allDueTasks.forEach((dueTask) => {
-      const timelineItemHTML = `<div class="task-timeline__item">
+      const timelineItemHTML = `<div class="task-timeline__item ${
+        dueTask.status === "blocked" ? "task-timeline__item--blocked" : ""
+      }">
       <span class="task-timeline__item-text">
-        ${dueTask.dueDate} | ${dueTask.textContent}
+        ${dueTask.statusText.slice(8)} | ${dueTask.textContent}
       </span>
     </div>`;
 
@@ -517,8 +516,6 @@ class App {
     const currentTask = this.allTasks.find(
       (storedTask) => storedTask.id === task.dataset.id
     );
-    console.log(task);
-    console.log(currentTask);
     this._processTaskTextInput(task);
     this._setLocalStorage();
   }
@@ -546,6 +543,17 @@ class App {
   _documentClickHandler(e) {
     console.log(e.target);
 
+    // Handle Task Edit & Save Once Overlay is Clicked
+    if (e.target.classList.contains("focus-overlay")) {
+      if (this.taskIsBeingEdited) {
+        this._handleTaskEdit(e.target);
+        this._manageDueTasks();
+      }
+      if (this.taskListIsBeingEdited) {
+        this._handleTaskListEdit(e.target);
+      }
+    }
+
     // When Priority Menu Item Clicked
     if (e.target.classList.contains("priority-menu__item")) {
       this._handleTaskPriorityChange(e);
@@ -559,13 +567,11 @@ class App {
 
     // When Task Complete Button Clicked in Priority Menu
     if (e.target.classList.contains("task-menu__container--complete")) {
-      console.log("Complete Clicked");
       this.completeTask();
     }
 
     // When Task Blocked Button Clicked in Priority Menu
     if (e.target.classList.contains("task-menu__container--blocked")) {
-      console.log("Blocked Clicked");
       this.setBlockedTask();
     }
 
@@ -576,7 +582,6 @@ class App {
 
     // When Task Due Date Button Clicked in Priority Menu
     if (e.target.classList.contains("task-menu__container--date")) {
-      console.log("Date Clicked");
       this.setDueDateForTask(picker);
     }
 
@@ -588,20 +593,6 @@ class App {
 
   // Handles clicks inside the taskBoard
   _clickHandler(e) {
-    // Change this later so any click outside the active task is counted
-    // Change this later so any click outside the active taskList text area is counted
-    if (
-      e.target.classList.contains("task-board") ||
-      e.target.classList.contains("task-list")
-    ) {
-      if (this.taskIsBeingEdited) {
-        this._handleTaskEdit(e.target);
-      }
-      if (this.taskListIsBeingEdited) {
-        this._handleTaskListEdit(e.target);
-      }
-    }
-
     if (e.target.classList.contains("task-card")) {
       this.activeTaskHTML = e.target;
       this.activeTaskObj = this._getNodeObj(this.activeTaskHTML);
@@ -682,7 +673,6 @@ class App {
       !e.target.classList.contains("tasklist-ellipsis") &&
       ui.taskListMenuOpen
     ) {
-      console.log("Task List Menu Removed");
       ui._removeTaskListMenu();
     }
 
@@ -711,7 +701,6 @@ class App {
       .textContent;
 
     this.activeTaskObj.textContent = taskText;
-    console.log(this.activeTaskObj);
 
     ui._toggleTaskTextInput(this.activeTaskHTML);
     ui._populateTextContent(this.activeTaskObj);
@@ -784,11 +773,8 @@ class App {
 
   // Higher order function for handling new task text edits
   _handleTaskEdit(target) {
-    console.log(target);
     this._toggleTaskEditing();
     this._processTaskTextInput();
-    console.log(target);
-
     this._setLocalStorage();
   }
 
@@ -835,7 +821,7 @@ class App {
   _manageDueTasks() {
     // Add all due tasks to set
     this.allTasks.forEach((task) => {
-      if (task.dueDate) {
+      if (task.dueDate && task.status !== "completed") {
         this.allDueTasks.add(task);
       }
     });
@@ -843,7 +829,7 @@ class App {
     // Re-order all due tasks by closest date
     if (this.allDueTasks) {
       let arr = [...this.allDueTasks];
-      // const sortedArr = arr.sort(function(a,b){return a-b});
+
       const sortedArr = arr.sort((a, b) =>
         a.dueDateMilliseconds > b.dueDateMilliseconds ? 1 : -1
       );
@@ -856,26 +842,22 @@ class App {
 
   // Set task as complete
   completeTask() {
-    this._setLocalStorage();
-    ui._removeTaskMenu();
-
     if (this.activeTaskObj.status === "completed") {
       this.activeTaskObj.status = "due";
       ui.switchTaskStatus("due");
-      // this.allDueTasks.add(this.activeTaskObj);
-      // this._manageDueTasks();
-      ui._updateTaskTimeline(this.allDueTasks);
-      console.log("Task Set to Due");
+      this._setLocalStorage();
+      ui._removeTaskMenu();
+      this._manageDueTasks();
       return;
     }
 
     if (this.activeTaskObj.status !== "completed") {
       this.activeTaskObj.status = "completed";
       ui.switchTaskStatus("completed");
-      // this.allDueTasks.delete(this.activeTaskObj);
-      // this._manageDueTasks();
-      ui._updateTaskTimeline(this.allDueTasks);
-      console.log("Task Set to completed");
+      this.removeTaskFromDueList(this.activeTaskObj);
+      this._setLocalStorage();
+      ui._removeTaskMenu();
+      this._manageDueTasks();
       return;
     }
   }
@@ -885,20 +867,18 @@ class App {
     if (this.activeTaskObj.status === "blocked") {
       this.activeTaskObj.status = "due";
       ui.switchTaskStatus("due");
-      console.log("Task Set to Due");
-
       this._setLocalStorage();
       ui._removeTaskMenu();
+      this._manageDueTasks();
       return;
     }
 
     if (this.activeTaskObj.status !== "blocked") {
       this.activeTaskObj.status = "blocked";
       ui.switchTaskStatus("blocked");
-      console.log("Task Set to Blocked");
-
       this._setLocalStorage();
       ui._removeTaskMenu();
+      this._manageDueTasks();
       return;
     }
   }
@@ -906,10 +886,15 @@ class App {
   // Delete task
   deleteTask() {
     this.allTasks.splice(this.allTasks.indexOf(this.activeTaskObj), 1);
-    this.allDueTasks.delete(this.activeTaskObj);
+    this.removeTaskFromDueList(this.activeTaskObj);
     ui._removeTask(this.activeTaskHTML);
     ui._removeTaskMenu();
     this._setLocalStorage();
+  }
+
+  removeTaskFromDueList(task) {
+    this.allDueTasks.delete(task);
+    this._manageDueTasks();
   }
 
   // Delete all tasks in list
@@ -919,9 +904,7 @@ class App {
     childTaskArr.forEach((taskId) => {
       const taskToDelete = this.allTasks.find((task) => task.id === taskId);
       this.allTasks.splice(this.allTasks.indexOf(taskToDelete), 1);
-      this.allDueTasks.delete(taskToDelete);
-      ui._updateTaskTimeline(this.allDueTasks);
-      console.log(taskToDelete);
+      this.removeTaskFromDueList(taskToDelete);
     });
 
     this._setLocalStorage();
@@ -955,6 +938,7 @@ class App {
       ui._removeTaskMenu();
       this.activeTaskObj.dueDateMilliseconds = unformattedDate.getTime();
       this._manageDueTasks();
+      picker.navigate(app.currentDate);
       this._setLocalStorage();
     }
   }
@@ -1047,5 +1031,3 @@ const picker = datepicker(".task-menu__container--date", {
     app.setDueDateForTask(instance, date);
   },
 });
-
-console.log(app.allTasks);
