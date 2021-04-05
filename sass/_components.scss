@@ -1,14 +1,7 @@
 .logo {
   order: 2;
-
   width: 15rem;
   margin: 0 auto;
-
-  transition: all 0.2s ease-in;
-
-  &:hover {
-    transform: scale(1.05);
-  }
 }
 
 .task-timeline {
@@ -602,7 +595,43 @@
 
   height: 3rem;
   width: 3rem;
-  background-color: red;
 
   cursor: pointer;
+}
+
+.overlay-btn-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100%;
+}
+
+.overlay-btn {
+  height: 4rem;
+  width: 40%;
+
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ffffff;
+
+  transition: all 0.2s;
+
+  cursor: pointer;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  &:active {
+    transform: scale(1.025);
+  }
+
+  &--yes {
+    background-color: red;
+  }
+
+  &--no {
+    background-color: green;
+  }
 }

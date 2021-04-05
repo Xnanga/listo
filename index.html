@@ -237,7 +237,13 @@
 
     <div class="focus-overlay hidden"></div>
     <div class="info-overlay info-overlay--info hidden">
-      <button class="close-overlay-icon"></button>
+      <button class="close-overlay-icon">
+        <img
+          src="img/cross-blue.svg"
+          alt="Close Cross Icon"
+          class="close-overlay-icon__img"
+        />
+      </button>
       <h2 class="info-overlay__heading">Info</h2>
       <p>
         Thank you for using Listo, the kanban-style tasklist manager for the
@@ -343,7 +349,13 @@
       </p>
     </div>
     <div class="info-overlay info-overlay--settings hidden">
-      <button class="close-overlay-icon"></button>
+      <button class="close-overlay-icon">
+        <img
+          src="img/cross-blue.svg"
+          alt="Close Cross Icon"
+          class="close-overlay-icon__img"
+        />
+      </button>
       <h2 class="info-overlay__heading">Settings</h2>
       <p>
         Customise Listo to your heart's content. Something you want to change
@@ -352,7 +364,13 @@
       <br />
     </div>
     <div class="info-overlay info-overlay--clear hidden">
-      <button class="close-overlay-icon"></button>
+      <button class="close-overlay-icon">
+        <img
+          src="img/cross-blue.svg"
+          alt="Close Cross Icon"
+          class="close-overlay-icon__img"
+        />
+      </button>
       <h2 class="info-overlay__heading">Clear Cache</h2>
       <p>
         Clearing your Listo cache will get rid of everything, leaving you with a
@@ -360,6 +378,14 @@
       </p>
       <p>Are you sure you want to proceed?</p>
       <br />
+      <div class="overlay-btn-container">
+        <button class="overlay-btn overlay-btn--no" id="no-clear-btn">
+          No, Don't Do It!
+        </button>
+        <button class="overlay-btn overlay-btn--yes" id="yes-clear-btn">
+          Yes, Clear It All
+        </button>
+      </div>
     </div>
   </body>
 </html>

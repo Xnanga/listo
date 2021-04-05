@@ -22,10 +22,12 @@ const clearNavBtn = document.querySelector(".nav-bar__btn--clear");
 const allInfoOverlays = [...document.querySelectorAll(".info-overlay")];
 const infoOverlay = document.querySelector(".info-overlay--info");
 const settingsOverlay = document.querySelector(".info-overlay--settings");
-const clearOverlay = document.querySelector(".info-overlay--settings");
+const clearOverlay = document.querySelector(".info-overlay--clear");
 const allCloseOverlayBtns = [
   ...document.querySelectorAll(".close-overlay-icon"),
 ];
+const yesClearBtn = document.getElementById("yes-clear-btn");
+const noClearBtn = document.getElementById("no-clear-btn");
 
 // Classes
 class Task {
@@ -596,7 +598,7 @@ class App {
     // When Dark Focus Overlay Clicked
     if (e.target.classList.contains("focus-overlay")) {
       const focusedTask = this.activeTaskHTML;
-      const focusedTaskList = this.activeTaskListHTML.querySelector(
+      const focusedTaskList = this.activeTaskListHTML?.querySelector(
         ".task-list__topbar"
       );
 
@@ -631,8 +633,17 @@ class App {
 
     // When clear navbar button clicked
     if (e.target === clearNavBtn) {
-      // Update to show clear info overlay
+      ui.displayInfoOverlay(clearOverlay);
+    }
+
+    if (e.target === yesClearBtn) {
       this.clearLocalStorage();
+      location.reload();
+      // ui.removeInfoOverlay();
+    }
+
+    if (e.target === noClearBtn) {
+      ui.removeInfoOverlay();
     }
 
     // When info navbar button clicked

@@ -50,29 +50,28 @@
 
   padding-top: 12rem;
   padding-left: 2rem;
-  padding-bottom: 2rem;
+  padding-bottom: 5rem;
 
-  background-color: rgba(19, 19, 19, 1);
-  background-repeat: repeat;
+  background-color: var(--color-darker);
 
-  overflow-x: unset;
+  overflow-x: scroll;
   overflow-y: hidden;
 
-  &::before {
-    // @include absPositionLeftZero;
-    position: fixed;
-    left: 0;
-    top: 0;
+  // &::before {
+  //   // @include absPositionLeftZero;
+  //   position: fixed;
+  //   left: 0;
+  //   top: 0;
 
-    content: "";
+  //   content: "";
 
-    width: 100%;
-    height: 100%;
+  //   width: 100%;
+  //   height: 100%;
 
-    background-image: url(../img/email-pattern.png);
-    background-repeat: repeat;
-    opacity: 0.15;
-  }
+  //   background-image: url(../img/email-pattern.png);
+  //   background-repeat: repeat;
+  //   opacity: 0.15;
+  // }
 }
 
 .focus-overlay {
@@ -97,8 +96,8 @@
 
   z-index: 50;
 
-  max-height: 90%;
-  max-width: 95%;
+  max-height: 75%;
+  max-width: 80%;
 
   padding: 2rem;
 
@@ -106,7 +105,7 @@
   border-radius: 4px;
 
   background-color: #ffffff;
-  opacity: 0.75;
+  opacity: 0.9;
 
   box-shadow: 15px 15px 5px 0px rgba(0, 0, 0, 0.75);
 
