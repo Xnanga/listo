@@ -28,6 +28,32 @@
   <body>
     <nav class="nav-bar">
       <img src="img/listo-logo.png" alt="Listo Logo" class="logo" />
+      <button
+        class="nav-bar__btn nav-bar__btn--info"
+        title="Info About the Listo Web App"
+      >
+        <img src="img/info.png" alt="Info Button" class="nav-bar__btn__icon" />
+      </button>
+      <button
+        class="nav-bar__btn nav-bar__btn--settings"
+        title="Change Some Settings"
+      >
+        <img
+          src="img/cog.png"
+          alt="Settings Button"
+          class="nav-bar__btn__icon"
+        />
+      </button>
+      <button
+        class="nav-bar__btn nav-bar__btn--clear"
+        title="Clear Your Listo Cache"
+      >
+        <img
+          src="img/cancel-circle.png"
+          alt="Clear Button"
+          class="nav-bar__btn__icon"
+        />
+      </button>
     </nav>
     <div class="utility-bar">
       <div class="task-timeline">
@@ -210,5 +236,130 @@
     </div>
 
     <div class="focus-overlay hidden"></div>
+    <div class="info-overlay info-overlay--info hidden">
+      <button class="close-overlay-icon"></button>
+      <h2 class="info-overlay__heading">Info</h2>
+      <p>
+        Thank you for using Listo, the kanban-style tasklist manager for the
+        solo worker! Below are some Q&A pointers on how to use Listo:
+      </p>
+      <br />
+      <p class="question">
+        Q: How do I mark my task as super-important and/or high priority?
+      </p>
+      <p class="answer">
+        A: See the faint white bar on the left side of each task card? Click
+        that to set a high, medium, or low priority.
+      </p>
+      <p class="question">
+        Q: What's the big stupid bar at the top of the page?
+      </p>
+      <p class="answer">
+        A: My friend, that's the task timeline bar. When you set a due date on a
+        task card, it'll appear up there to show you all the due tasks in order
+        of what is due first.
+      </p>
+      <p class="question">
+        Q: What's with the blue and purple colours in the task timeline bar?
+      </p>
+      <p class="answer">
+        A: Those let you know, at a glance, whether the due task is blocked or
+        not. Purple = blocked. Blue = not blocked. Simples.
+      </p>
+      <p class="question">
+        Q: I need more info on one of my due tasks showing in the task timeline
+        bar. Wut do?
+      </p>
+      <p class="answer">
+        A: No problemo. Hover over the task you need more info on for like a
+        second; an info bubble should appear giving you all the juicy
+        task-related info you're looking for.
+      </p>
+      <p class="question">
+        Q: But how do I even set a due date? This is all so confusing.
+      </p>
+      <p class="answer">
+        A: It's surprisingly simple and straightforward. Click the 3 dots at the
+        top-right of a task card, select "Set Due Date", then choose a date in
+        the calendar.
+      </p>
+      <p class="question">
+        Q: I've completed my task - how do I mark it so I know it's done?
+      </p>
+      <p class="answer">
+        A: Whenever you want to change the status of a task card, just click the
+        3 dots at the top-right of the task card. You can mark it as complete in
+        that masterfully-designed dropdown menu.
+      </p>
+      <p class="question">
+        Q: I accidentally set the wrong task as complete, woe is me!
+      </p>
+      <p class="answer">
+        A: Fear not! Remember how you set the task to complete? Do the same
+        thing again, you'll notice the button has magically changed to "Mark as
+        Incomplete".
+      </p>
+      <p class="question">
+        Q: Some inconsiderate bugger is holding me back from completing a task -
+        how can I mark the task as Blocked?
+      </p>
+      <p class="answer">
+        A: What an outrage. Check the 3 dots dropdown menu on the task card and
+        mark the task as blocked there. You can set it as no longer Blocked the
+        exact same way.
+      </p>
+      <p class="question">
+        Q: I have decided this task no longer deserves to live. How do I delete
+        it?
+      </p>
+      <p class="answer">
+        A: You monster! If I was a task murderer, like you, I would click the 3
+        dots dropdown menu and hit the Delete button.
+      </p>
+      <p class="question">
+        Q: I've created all these tasks and lists, I'm just going to lose them
+        when I leave or refresh the page, right?
+      </p>
+      <p class="answer">
+        A: Not so! Listo automatically saves all your tasks, lists, due dates,
+        and statuses. Unless you clear your cache, it'll all be here waiting for
+        you next time you come on by. I got you homie.
+      </p>
+      <p class="question">
+        Q: I want to change some settings - some stuff doesn't suit my style.
+      </p>
+      <p class="answer">
+        A: That button with the cog symbol at the top-right of the page, in the
+        nav bar, is exactly what you're looking for.
+      </p>
+      <p class="question">
+        Q: I want to burn it all to the ground by clearing all my tasks, lists,
+        and everything else!
+      </p>
+      <p class="answer">
+        A: Easy there, are you sure? Okay, see the cross button at the
+        top-right, in the navigation bar? Click that to clear absolutely
+        everything.
+      </p>
+    </div>
+    <div class="info-overlay info-overlay--settings hidden">
+      <button class="close-overlay-icon"></button>
+      <h2 class="info-overlay__heading">Settings</h2>
+      <p>
+        Customise Listo to your heart's content. Something you want to change
+        isn't there? Send that pesky developer a feature request!
+      </p>
+      <br />
+    </div>
+    <div class="info-overlay info-overlay--clear hidden">
+      <button class="close-overlay-icon"></button>
+      <h2 class="info-overlay__heading">Clear Cache</h2>
+      <p>
+        Clearing your Listo cache will get rid of everything, leaving you with a
+        clear task board.
+      </p>
+      <p>Are you sure you want to proceed?</p>
+      <br />
+    </div>
   </body>
 </html>

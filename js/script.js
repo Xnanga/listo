@@ -16,6 +16,16 @@ const taskMenuCompletedState = document.querySelector(".task-menu--completed");
 const taskMenuBlockedState = document.querySelector(".task-menu--blocked");
 const taskListMenu = document.querySelector(".tasklist-menu");
 const taskTimelineBar = document.querySelector(".task-timeline__bar");
+const infoNavBtn = document.querySelector(".nav-bar__btn--info");
+const settingsNavBtn = document.querySelector(".nav-bar__btn--settings");
+const clearNavBtn = document.querySelector(".nav-bar__btn--clear");
+const allInfoOverlays = [...document.querySelectorAll(".info-overlay")];
+const infoOverlay = document.querySelector(".info-overlay--info");
+const settingsOverlay = document.querySelector(".info-overlay--settings");
+const clearOverlay = document.querySelector(".info-overlay--settings");
+const allCloseOverlayBtns = [
+  ...document.querySelectorAll(".close-overlay-icon"),
+];
 
 // Classes
 class Task {
@@ -48,7 +58,11 @@ class UI {
   taskListMenuOpen = false;
   focusOverlayVisible = false;
 
-  constructor() {}
+  constructor() {
+    allCloseOverlayBtns.forEach((btn) =>
+      btn.addEventListener("click", this.removeInfoOverlay)
+    );
+  }
 
   // Switches visibility of task text and input on click
   _toggleTaskTextInput(task) {
@@ -238,6 +252,8 @@ class UI {
       taskList.textContent;
     taskListHTML.querySelector(".task-list__text-area").value =
       taskList.textContent;
+
+    app._manageDueTasks();
   }
 
   _displayPriorityMenu(e) {
@@ -290,7 +306,7 @@ class UI {
     this._toggleStyleClass(taskListMenu, "hidden", "add");
   }
 
-  // Displays a dark overlay except for focused task
+  // Displays a dark overlay except for focused task or list
   _displayFocusOverlay(el) {
     this.focusOverlayVisible = true;
     this._toggleStyleClass(focusOverlay, "hidden", "remove");
@@ -304,6 +320,20 @@ class UI {
     if (el) {
       el.style.zIndex = "5";
     }
+  }
+
+  displayInfoOverlay(overlay) {
+    console.log(overlay);
+    console.log(allInfoOverlays);
+    const overlayToDisplay = allInfoOverlays.find(
+      (listedOverlay) => listedOverlay === overlay
+    );
+    overlayToDisplay.classList.remove("hidden");
+    return overlayToDisplay;
+  }
+
+  removeInfoOverlay() {
+    allInfoOverlays.forEach((overlay) => overlay.classList.add("hidden"));
   }
 
   _toggleStyleClass(el, cssClass, action) {
@@ -358,7 +388,11 @@ class UI {
         dueTask.status === "blocked" ? "task-timeline__item--blocked" : ""
       }">
       <span class="task-timeline__item-text">
-        ${dueTask.statusText.slice(8)} | ${dueTask.textContent}
+        ${dueTask.statusText.slice(8)} | ${
+        app.allTaskLists.find(
+          (taskList) => taskList.id === dueTask.parentTaskList
+        ).textContent
+      }
       </span>
     </div>`;
 
@@ -562,7 +596,12 @@ class App {
     // When Dark Focus Overlay Clicked
     if (e.target.classList.contains("focus-overlay")) {
       const focusedTask = this.activeTaskHTML;
-      ui._removeFocusOverlay(focusedTask);
+      const focusedTaskList = this.activeTaskListHTML.querySelector(
+        ".task-list__topbar"
+      );
+
+      if (this.taskEditingEnabled) ui._removeFocusOverlay(focusedTask);
+      if (this.taskListEditingEnabled) ui._removeFocusOverlay(focusedTaskList);
     }
 
     // When Task Complete Button Clicked in Priority Menu
@@ -589,6 +628,22 @@ class App {
     if (e.target.classList.contains("tasklist-delete-btn")) {
       this.deleteTaskList();
     }
+
+    // When clear navbar button clicked
+    if (e.target === clearNavBtn) {
+      // Update to show clear info overlay
+      this.clearLocalStorage();
+    }
+
+    // When info navbar button clicked
+    if (e.target === infoNavBtn) {
+      ui.displayInfoOverlay(infoOverlay);
+    }
+
+    // When settings navbar button clicked
+    if (e.target === settingsNavBtn) {
+      ui.displayInfoOverlay(settingsOverlay);
+    }
   }
 
   // Handles clicks inside the taskBoard
@@ -610,9 +665,12 @@ class App {
 
     if (e.target.classList.contains("task-list__topbar__heading")) {
       if (this.taskListIsBeingEdited) return;
-
       this._setActiveTaskList(e.target);
       this._handleTaskListEdit(e.target);
+
+      ui._displayFocusOverlay(
+        this.activeTaskListHTML.querySelector(".task-list__topbar")
+      );
     }
 
     if (e.target.classList.contains("task-card__priority-bar")) {
@@ -676,23 +734,19 @@ class App {
       ui._removeTaskListMenu();
     }
 
-    // if (!this.taskEditingEnabled) return;
     this._handleNewTaskCreation(e);
   }
 
   _keyPressHandler(e) {
-    if (e.key !== "Enter") return;
-
-    if (this.taskIsBeingEdited) {
-      this._handleTaskEdit();
-    }
-
-    if (this.taskListIsBeingEdited) {
-      this._handleTaskListEdit();
-    }
-
-    if (!this.taskEditingEnabled) return;
-    this._handleNewTaskCreation(e);
+    // if (e.key !== "Enter") return;
+    // if (this.taskIsBeingEdited) {
+    //   this._handleTaskEdit();
+    // }
+    // if (this.taskListIsBeingEdited) {
+    //   this._handleTaskListEdit();
+    // }
+    // if (!this.taskEditingEnabled) return;
+    // this._handleNewTaskCreation(e);
   }
 
   // Update text content in edited task
@@ -1011,19 +1065,15 @@ class App {
     this._manageDueTasks();
     ui._updateTaskTimeline(this.allDueTasks);
   }
+
+  clearLocalStorage() {
+    localStorage.clear();
+  }
 }
 
 const app = new App();
 const ui = new UI();
 app._getLocalStorage();
-
-// Temporary way to clear local storage
-document.addEventListener("keypress", function (e) {
-  if (e.code === "KeyL") {
-    localStorage.clear();
-    console.log("LS Cleared");
-  }
-});
 
 // Allows for choosing task due date with calendar
 const picker = datepicker(".task-menu__container--date", {
