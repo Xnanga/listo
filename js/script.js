@@ -1,6 +1,7 @@
 "use: strict";
 
 import datepicker from "./vendor-modules/datepicker.js";
+// import dragDrop from "./drag-n-drop.js";
 
 // Layout elements
 const navBar = document.querySelector(".nav-bar");
@@ -1092,3 +1093,52 @@ const picker = datepicker(".task-menu__container--date", {
     app.setDueDateForTask(instance, date);
   },
 });
+
+// Allows for drag and drop functionality
+
+// const dragStart = (event) => {
+//   event.currentTarget.classList.add("dragging");
+// };
+
+// const dragEnd = (event) => {
+//   event.currentTarget.classList.remove("dragging");
+// };
+
+// document.querySelectorAll(".task-card").forEach((card) => {
+//   card.addEventListener("dragstart", dragStart);
+//   card.addEventListener("dragend", dragEnd);
+// });
+
+// const drag = (event) => {
+//   event.dataTransfer.setData("text/html", event.currentTarget.outerHTML);
+//   event.dataTransfer.setData("text/plain", event.currentTarget.dataset.id);
+// };
+
+// const dragEnter = (event) => {
+//   event.currentTarget.classList.add("drop");
+// };
+
+// const dragLeave = (event) => {
+//   event.currentTarget.classList.remove("drop");
+// };
+
+// document.querySelectorAll(".task-list").forEach((list) => {
+//   list.addEventListener("dragenter", dragEnter);
+//   list.addEventListener("dragleave", dragLeave);
+// });
+
+// const drop = (event) => {
+//   document
+//     .querySelectorAll(".task-card")
+//     .forEach((card) => card.classList.remove("drop"));
+//   document
+//     .querySelector(`[data-id="${event.dataTransfer.getData("text/plain")}"]`)
+//     .remove();
+
+//   event.currentTarget.innerHTML =
+//     event.currentTarget.innerHTML + event.dataTransfer.getData("text/html");
+// };
+
+// const allowDrop = (event) => {
+//   event.preventDefault();
+// };
