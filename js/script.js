@@ -1,7 +1,6 @@
 "use: strict";
 
 import datepicker from "./vendor-modules/datepicker.js";
-// import dragDrop from "./drag-n-drop.js";
 
 // Layout elements
 const navBar = document.querySelector(".nav-bar");
@@ -326,8 +325,6 @@ class UI {
   }
 
   displayInfoOverlay(overlay) {
-    console.log(overlay);
-    console.log(allInfoOverlays);
     const overlayToDisplay = allInfoOverlays.find(
       (listedOverlay) => listedOverlay === overlay
     );
@@ -412,8 +409,8 @@ class UI {
   }
 
   _moveElementToCursor(eventObj, el) {
-    const mouseY = eventObj.clientY;
-    const mouseX = eventObj.clientX;
+    const mouseY = eventObj.pageY;
+    const mouseX = eventObj.pageX;
 
     el.style.position = "absolute";
     el.style.top = `${mouseY}px`;
@@ -489,9 +486,8 @@ class App {
     ui._displayEmptyTask(parentTaskList);
 
     // Define Current Task as Var & Active Task
-    const allCurrentTasks = target.previousElementSibling.querySelectorAll(
-      ".task-card"
-    );
+    const allCurrentTasks =
+      target.previousElementSibling.querySelectorAll(".task-card");
     newTaskElement = allCurrentTasks[allCurrentTasks.length - 1];
     this.activeTaskHTML = newTaskElement;
 
@@ -572,14 +568,12 @@ class App {
 
   _attachEventListeners() {
     taskBoard.addEventListener("click", this._clickHandler.bind(this));
-    taskBoard.addEventListener("keypress", this._keyPressHandler.bind(this));
+    document.addEventListener("keypress", this._keyPressHandler.bind(this));
     document.addEventListener("click", this._documentClickHandler.bind(this));
   }
 
   // Handles clicks globally
   _documentClickHandler(e) {
-    console.log(e.target);
-
     // Handle Task Edit & Save Once Overlay is Clicked
     if (e.target.classList.contains("focus-overlay")) {
       if (this.taskIsBeingEdited) {
@@ -599,9 +593,8 @@ class App {
     // When Dark Focus Overlay Clicked
     if (e.target.classList.contains("focus-overlay")) {
       const focusedTask = this.activeTaskHTML;
-      const focusedTaskList = this.activeTaskListHTML?.querySelector(
-        ".task-list__topbar"
-      );
+      const focusedTaskList =
+        this.activeTaskListHTML?.querySelector(".task-list__topbar");
 
       if (this.taskEditingEnabled) ui._removeFocusOverlay(focusedTask);
       if (this.taskListEditingEnabled) ui._removeFocusOverlay(focusedTaskList);
@@ -638,6 +631,7 @@ class App {
     }
 
     if (e.target === yesClearBtn) {
+      console.log("Delete Clicked");
       this.clearLocalStorage();
       location.reload();
       // ui.removeInfoOverlay();
@@ -654,7 +648,7 @@ class App {
 
     // When settings navbar button clicked
     if (e.target === settingsNavBtn) {
-      ui.displayInfoOverlay(settingsOverlay);
+      this.preFillLocalStorage();
     }
   }
 
@@ -750,21 +744,29 @@ class App {
   }
 
   _keyPressHandler(e) {
-    // if (e.key !== "Enter") return;
-    // if (this.taskIsBeingEdited) {
-    //   this._handleTaskEdit();
-    // }
-    // if (this.taskListIsBeingEdited) {
-    //   this._handleTaskListEdit();
-    // }
-    // if (!this.taskEditingEnabled) return;
-    // this._handleNewTaskCreation(e);
+    const focusedTask = this.activeTaskHTML;
+    const focusedTaskList =
+      this.activeTaskListHTML?.querySelector(".task-list__topbar");
+
+    if (e.key !== "Enter") return;
+    if (this.taskIsBeingEdited) {
+      this._handleTaskEdit();
+    }
+    if (this.taskListIsBeingEdited) {
+      this._handleTaskListEdit();
+    }
+    if (!this.taskEditingEnabled) return;
+    this._handleNewTaskCreation(e);
+
+    if (this.taskEditingEnabled) ui._removeFocusOverlay(focusedTask);
+    if (this.taskListEditingEnabled) ui._removeFocusOverlay(focusedTaskList);
   }
 
   // Update text content in edited task
   _processTaskTextInput(target) {
-    const taskText = this.activeTaskHTML.querySelector(".task-card__text-area")
-      .textContent;
+    const taskText = this.activeTaskHTML.querySelector(
+      ".task-card__text-area"
+    ).textContent;
 
     this.activeTaskObj.textContent = taskText;
 
@@ -991,9 +993,8 @@ class App {
 
     // Update UI taskcard
     activeTask.statusText = `Due on: ${formattedDate || "TBC"}`;
-    const activeTaskDueDateText = activeTaskHTML.querySelector(
-      ".task-card__status"
-    );
+    const activeTaskDueDateText =
+      activeTaskHTML.querySelector(".task-card__status");
     ui._updateTaskStatusText(activeTask.statusText, activeTaskDueDateText);
 
     // Update UI timeline bar
@@ -1081,6 +1082,35 @@ class App {
   clearLocalStorage() {
     localStorage.clear();
   }
+
+  async preFillLocalStorage() {
+    if (this.allTasks.length > 0 || this.allTaskLists.length > 0) return;
+
+    this.clearLocalStorage();
+
+    const preFillData = await fetch("./data/pre-filled-tasks.json")
+      .then((res) => res.text())
+      .then((data) => {
+        const allData = JSON.parse(data);
+        const taskListData = allData.taskLists;
+        const taskData = allData.tasks;
+
+        const parsedTaskListData = JSON.parse(taskListData);
+        const parsedTaskData = JSON.parse(taskData);
+
+        const arr = [parsedTaskListData, parsedTaskData];
+        return arr;
+      })
+      .then((arr) => {
+        this.allTaskLists = arr[0];
+        this.allTasks = arr[1];
+
+        this._renderAllTaskLists();
+        this._renderAllTasks();
+        this._manageDueTasks();
+        ui._updateTaskTimeline(this.allDueTasks);
+      });
+  }
 }
 
 const app = new App();
@@ -1093,52 +1123,3 @@ const picker = datepicker(".task-menu__container--date", {
     app.setDueDateForTask(instance, date);
   },
 });
-
-// Allows for drag and drop functionality
-
-// const dragStart = (event) => {
-//   event.currentTarget.classList.add("dragging");
-// };
-
-// const dragEnd = (event) => {
-//   event.currentTarget.classList.remove("dragging");
-// };
-
-// document.querySelectorAll(".task-card").forEach((card) => {
-//   card.addEventListener("dragstart", dragStart);
-//   card.addEventListener("dragend", dragEnd);
-// });
-
-// const drag = (event) => {
-//   event.dataTransfer.setData("text/html", event.currentTarget.outerHTML);
-//   event.dataTransfer.setData("text/plain", event.currentTarget.dataset.id);
-// };
-
-// const dragEnter = (event) => {
-//   event.currentTarget.classList.add("drop");
-// };
-
-// const dragLeave = (event) => {
-//   event.currentTarget.classList.remove("drop");
-// };
-
-// document.querySelectorAll(".task-list").forEach((list) => {
-//   list.addEventListener("dragenter", dragEnter);
-//   list.addEventListener("dragleave", dragLeave);
-// });
-
-// const drop = (event) => {
-//   document
-//     .querySelectorAll(".task-card")
-//     .forEach((card) => card.classList.remove("drop"));
-//   document
-//     .querySelector(`[data-id="${event.dataTransfer.getData("text/plain")}"]`)
-//     .remove();
-
-//   event.currentTarget.innerHTML =
-//     event.currentTarget.innerHTML + event.dataTransfer.getData("text/html");
-// };
-
-// const allowDrop = (event) => {
-//   event.preventDefault();
-// };
