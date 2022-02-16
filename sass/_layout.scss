@@ -32,6 +32,10 @@
   border-bottom: 2px solid #000000;
 
   background-color: var(--color-dark);
+
+  @media only screen and (max-width: $bp-large) {
+    display: none;
+  }
 }
 
 .task-board {
@@ -57,21 +61,14 @@
   overflow-x: scroll;
   overflow-y: hidden;
 
-  // &::before {
-  //   // @include absPositionLeftZero;
-  //   position: fixed;
-  //   left: 0;
-  //   top: 0;
+  @media only screen and (max-width: $bp-large) {
+    padding-top: 6rem;
+  }
 
-  //   content: "";
-
-  //   width: 100%;
-  //   height: 100%;
-
-  //   background-image: url(../img/email-pattern.png);
-  //   background-repeat: repeat;
-  //   opacity: 0.15;
-  // }
+  @media only screen and (max-width: $bp-smallest) {
+    grid-template-columns: 95%;
+    grid-auto-columns: 90%;
+  }
 }
 
 .focus-overlay {
@@ -89,6 +86,8 @@
 }
 
 .info-overlay {
+  display: flex;
+  flex-direction: column;
   position: fixed;
   left: 50%;
   top: 50%;
@@ -97,7 +96,7 @@
   z-index: 50;
 
   max-height: 75%;
-  max-width: 80%;
+  width: 80%;
 
   padding: 2rem;
 
@@ -113,5 +112,15 @@
 
   & > h2 {
     font-size: 4rem;
+  }
+
+  @media only screen and (max-width: $bp-large) {
+    width: 80vw;
+  }
+
+  @media only screen and (max-width: $bp-smaller) {
+    max-height: calc(100vh - 3rem);
+    margin-top: 3rem;
+    width: 100vw;
   }
 }

@@ -179,6 +179,8 @@
 
   transition: all 0.2s;
 
+  cursor: pointer;
+
   &:hover {
     border: 2px dashed var(--color-light-blue);
     font-size: 2.25rem;
@@ -520,6 +522,10 @@
     height: 2.5rem;
     width: 2.5rem;
   }
+
+  @media only screen and (max-width: $bp-small) {
+    transform: translate(-80%, 10%);
+  }
 }
 
 .tasklist-menu {
@@ -538,6 +544,10 @@
   outline: none;
 
   background-color: var(--color-darkest);
+
+  @media only screen and (max-width: $bp-small) {
+    transform: translate(-90%, 40%);
+  }
 }
 
 .nav-bar__btn {
@@ -589,13 +599,12 @@
 }
 
 .close-overlay-icon {
-  position: absolute;
+  position: sticky;
   top: 0;
   right: 0;
-  margin-top: 1.5rem;
-  margin-right: 1.5rem;
+  margin-left: auto;
 
-  height: 3rem;
+  height: 0;
   width: 3rem;
 
   cursor: pointer;

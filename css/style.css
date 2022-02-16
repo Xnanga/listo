@@ -181,7 +181,8 @@ p {
   font-weight: 700;
   color: var(--color-light-blue);
   background-color: transparent;
-  transition: all 0.2s; }
+  transition: all 0.2s;
+  cursor: pointer; }
   .new-task-list-btn:hover {
     border: 2px dashed var(--color-light-blue);
     font-size: 2.25rem; }
@@ -407,6 +408,9 @@ p {
   .task-menu__icon {
     height: 2.5rem;
     width: 2.5rem; }
+  @media only screen and (max-width: 46.875em) {
+    .task-menu {
+      transform: translate(-80%, 10%); } }
 
 .tasklist-menu {
   position: absolute;
@@ -420,6 +424,9 @@ p {
   box-shadow: 4px 4px 2px 0px rgba(0, 0, 0, 0.75);
   outline: none;
   background-color: var(--color-darkest); }
+  @media only screen and (max-width: 46.875em) {
+    .tasklist-menu {
+      transform: translate(-90%, 40%); } }
 
 .nav-bar__btn {
   display: flex;
@@ -452,12 +459,11 @@ p {
     pointer-events: none; }
 
 .close-overlay-icon {
-  position: absolute;
+  position: sticky;
   top: 0;
   right: 0;
-  margin-top: 1.5rem;
-  margin-right: 1.5rem;
-  height: 3rem;
+  margin-left: auto;
+  height: 0;
   width: 3rem;
   cursor: pointer; }
 
@@ -505,6 +511,9 @@ p {
   width: 100%;
   border-bottom: 2px solid #000000;
   background-color: var(--color-dark); }
+  @media only screen and (max-width: 68.75em) {
+    .utility-bar {
+      display: none; } }
 
 .task-board {
   display: grid;
@@ -524,6 +533,13 @@ p {
   background-color: var(--color-darker);
   overflow-x: scroll;
   overflow-y: hidden; }
+  @media only screen and (max-width: 68.75em) {
+    .task-board {
+      padding-top: 6rem; } }
+  @media only screen and (max-width: 31.25em) {
+    .task-board {
+      grid-template-columns: 95%;
+      grid-auto-columns: 90%; } }
 
 .focus-overlay {
   position: fixed;
@@ -536,13 +552,15 @@ p {
   opacity: 0.6; }
 
 .info-overlay {
+  display: flex;
+  flex-direction: column;
   position: fixed;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
   z-index: 50;
   max-height: 75%;
-  max-width: 80%;
+  width: 80%;
   padding: 2rem;
   border: 4px solid #000000;
   border-radius: 4px;
@@ -552,6 +570,14 @@ p {
   overflow-y: scroll; }
   .info-overlay > h2 {
     font-size: 4rem; }
+  @media only screen and (max-width: 68.75em) {
+    .info-overlay {
+      width: 80vw; } }
+  @media only screen and (max-width: 40.625em) {
+    .info-overlay {
+      max-height: calc(100vh - 3rem);
+      margin-top: 3rem;
+      width: 100vw; } }
 
 h2 {
   font-size: 2.25rem;
