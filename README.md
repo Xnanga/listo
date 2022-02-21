@@ -1,25 +1,25 @@
 
-# Listo
+# Listo 📝
 
-Inspired by the likes of [Trello](https://trello.com/), Listo is **a kan-ban style productivity tab aimed at the solo worker**. Keep track of as many projects as you like, create cards to keep yourself accountable for day-to-day tasks, and set clear and consistent deadlines.
+Inspired by the likes of [Trello](https://trello.com/), Listo is **a kan-ban style productivity webapp aimed at the solo worker**. Keep track of as many projects as you like, create cards to keep yourself accountable for day-to-day tasks, and set clear and consistent deadlines.
 
 Core features include:
 
 - Create and name tasklists for projects, timelines, and more.
 - Create cards for your tasks and add them to your lists.
 - Cards allow you to set priority levels, due dates, and statuses (such as Blocked or Completed).
-- The taskbar gives you a visual respresentation of your due tasks along with key info.
+- The taskbar gives you a visual representation of your due tasks along with key info.
 - Autosave ensures you never lose your work unless you clear your browser's cache.
 
 ## Demo
 
-Visit a live version of the Listo Webapp.
+[Visit a live version of the Listo Webapp](https://xnanga.github.io/listo/)
 
 ![Listo Demo Gif](https://github.com/Xnanga/listo/blob/master/listo-demo.gif)
 
 ## Run Locally
 
-Listo has very few dependencies, so you can clone the repository and use:
+Listo has very few dependencies (only [DatePicker.js](https://www.npmjs.com/package/js-datepicker)), so you can clone the repository and use:
 
     npm install
 
@@ -29,7 +29,7 @@ Then use the following command to spin up a local development server:
 
 ## Code Highlights
 
-Listo was a good opportunity to take an object-oriented approach in JavaScript to solve a real-world problem. ES6 classes were used keep App, User Interface, Tasklist, and Task functionality seperate and organised.
+Listo was a good opportunity to take an object-oriented approach in JavaScript to solve a real-world problem. ES6 classes were used keep App, User Interface, Tasklist, and Task functionality separate and organised.
 
 I make heavy use of the _this_ keyword which taught me a lot about its function in an OOP context as well as the pitfalls for code readability in using it.
 
@@ -64,7 +64,7 @@ Heavy use of DOM manipulation meant creating pure functions which could perform 
 A good example below shows two of these functions.
 
 - The **_moveElementToCursor** method was perfect for opening floating menus at different positions on the board.
-- The **_toggleStyleClass** method was ideal for switching classes on elements which had to communicate their status change frequently.
+- The **_toggleStyleClass** method was ideal for switching classes on elements that had to communicate their status change frequently.
 
 
       _displayTaskMenu(e) {
@@ -121,17 +121,17 @@ Then, in another session, when Listo is reloaded, the method below reads LocalSt
 
 Listo is far from perfect and could be made much more useful with some additional features. Some of these which were considered are covered below.
 
-**Drag and Drop Tasks**
+### Drag and Drop Tasks
 
 This was on the list of features to include during the initial planning phase. I had attempted to implement this natively at one point but it turned out to be much more complex than I had anticipated for someone at my skill level at the time.
 
 If I was to create a Listo 2.0, this would be the #1 new feature.
 
-**Save Boards at an Account Level**
+### Save Boards at an Account Level
 
 Adding some backend code and a database would allow for users to make an account and save their tasklists. While LocalStorage is useful for saving work in the short-term, users will lose their work after they clear their cache.
 
-**Navigational Improvements**
+### Navigational Improvements
 
 While moving around the board is not fairly straightforward, two additions would make this even better:
 
