@@ -167,23 +167,25 @@
 
   height: 5rem;
 
-  border: 2px dashed var(--color-dark-blue);
+  border: 4px dashed var(--color-dark-blue);
   border-radius: 3px;
   padding: 1rem;
 
   font-size: 2rem;
   font-weight: 700;
 
-  color: var(--color-light-blue);
-  background-color: transparent;
+  background-color: #222222;
+
+  // color: var(--color-light-blue);
+  color: #ebe9e9;
 
   transition: all 0.2s;
 
   cursor: pointer;
 
   &:hover {
-    border: 2px dashed var(--color-light-blue);
-    font-size: 2.25rem;
+    border: 4px dashed var(--color-light-blue);
+    font-size: 2.15rem;
   }
 
   & > span {
@@ -622,7 +624,9 @@
   height: 4rem;
   width: 40%;
 
-  font-size: 2rem;
+  padding: 0.5rem;
+
+  font-size: 1.6rem;
   font-weight: 700;
   color: #ffffff;
 
@@ -631,11 +635,7 @@
   cursor: pointer;
 
   &:hover {
-    transform: scale(1.1);
-  }
-
-  &:active {
-    transform: scale(1.025);
+    transform: translateY(-1px);
   }
 
   &--yes {

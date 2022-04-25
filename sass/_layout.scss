@@ -56,6 +56,9 @@
   padding-left: 2rem;
   padding-bottom: 5rem;
 
+  background-image: url("../img/landscape.jpg");
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   background-color: var(--color-darker);
 
   overflow-x: scroll;
@@ -96,7 +99,7 @@
   z-index: 50;
 
   max-height: 75%;
-  width: 80%;
+  max-width: 50%;
 
   padding: 2rem;
 
@@ -121,6 +124,6 @@
   @media only screen and (max-width: $bp-smaller) {
     max-height: calc(100vh - 3rem);
     margin-top: 3rem;
-    width: 100vw;
+    max-width: 95vw;
   }
 }

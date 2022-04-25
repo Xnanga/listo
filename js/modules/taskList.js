@@ -1,5 +1,8 @@
 "use: strict";
 
+// Imports
+import Task from "./task.js";
+
 class TaskList {
   id = (Date.now() + "").slice(-10);
   childTasks = [];
@@ -10,4 +13,4 @@ class TaskList {
   }
 }
 
-export { TaskList };
+export default TaskList;

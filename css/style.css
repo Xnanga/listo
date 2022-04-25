@@ -174,18 +174,18 @@ p {
   position: relative;
   z-index: 5;
   height: 5rem;
-  border: 2px dashed var(--color-dark-blue);
+  border: 4px dashed var(--color-dark-blue);
   border-radius: 3px;
   padding: 1rem;
   font-size: 2rem;
   font-weight: 700;
-  color: var(--color-light-blue);
-  background-color: transparent;
+  background-color: #222222;
+  color: #ebe9e9;
   transition: all 0.2s;
   cursor: pointer; }
   .new-task-list-btn:hover {
-    border: 2px dashed var(--color-light-blue);
-    font-size: 2.25rem; }
+    border: 4px dashed var(--color-light-blue);
+    font-size: 2.15rem; }
   .new-task-list-btn > span {
     pointer-events: none; }
 
@@ -476,15 +476,14 @@ p {
 .overlay-btn {
   height: 4rem;
   width: 40%;
-  font-size: 2rem;
+  padding: 0.5rem;
+  font-size: 1.6rem;
   font-weight: 700;
   color: #ffffff;
   transition: all 0.2s;
   cursor: pointer; }
   .overlay-btn:hover {
-    transform: scale(1.1); }
-  .overlay-btn:active {
-    transform: scale(1.025); }
+    transform: translateY(-1px); }
   .overlay-btn--yes {
     background-color: red; }
   .overlay-btn--no {
@@ -530,6 +529,9 @@ p {
   padding-top: 12rem;
   padding-left: 2rem;
   padding-bottom: 5rem;
+  background-image: url("../img/landscape.jpg");
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   background-color: var(--color-darker);
   overflow-x: scroll;
   overflow-y: hidden; }
@@ -560,7 +562,7 @@ p {
   transform: translate(-50%, -50%);
   z-index: 50;
   max-height: 75%;
-  width: 80%;
+  max-width: 50%;
   padding: 2rem;
   border: 4px solid #000000;
   border-radius: 4px;
@@ -577,7 +579,7 @@ p {
     .info-overlay {
       max-height: calc(100vh - 3rem);
       margin-top: 3rem;
-      width: 100vw; } }
+      max-width: 95vw; } }
 
 h2 {
   font-size: 2.25rem;
